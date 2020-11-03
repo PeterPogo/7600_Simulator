@@ -26,15 +26,6 @@ public:
         execution_Time = 1;
     }
 
-    // Parameterized constructor
-    Func_Unit_SB(string Name, bool Busy, bool Idle, int Seg_time, int Ex_time)
-    {
-        funcUnit_name = Name;
-        busy_tag = Busy;
-        segment_Time = Seg_time;
-        execution_Time = Ex_time;
-    }
-
     // Set parameters per functional unit
     void SetParameters(string Name, bool Busy, bool Idle, int Seg_time, int Ex_time)
     {
@@ -131,3 +122,5 @@ int main()
 // 3.) Clock table will reflect actions of scoreboard (there is a counter --> clock_pulses)
 
 // Lecture 10/20 39:41 starts filling out the example table
+
+// B0 is always 0
