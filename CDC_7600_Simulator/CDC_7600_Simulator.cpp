@@ -130,4 +130,4 @@ int main()
 
 // 3.) Clock table will reflect actions of scoreboard (there is a counter --> clock_pulses)
 
-// Lecutre 10/20 39:41 starts filling out the example table
+// Lecture 10/20 39:41 starts filling out the example table
