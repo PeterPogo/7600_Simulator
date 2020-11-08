@@ -73,25 +73,32 @@ public:
     // Resolve conflicts
 };
 
+#pragma region Operator Overloading
+// Overload << operator for Scoreboard Class
+ostream& operator<<(ostream& os, const Scoreboard& sb)
+{
+    os << "\n====================================================";
+    os << "\n|Func Unit|busy_tag|idle|segment_time|execution_time";
+    os << "\n" << sb.Boolean.funcUnit_name << "       " << sb.Boolean.busy_tag << "      " << sb.Boolean.idle << "\t\t" << sb.Boolean.segment_Time << "\t\t" << sb.Boolean.execution_Time;
+    os << "\n" << sb.Shift.funcUnit_name << "         " << sb.Shift.busy_tag << "      " << sb.Shift.idle << "\t\t" << sb.Shift.segment_Time << "\t\t" << sb.Shift.execution_Time;
+    os << "\n" << sb.Fixed_Add.funcUnit_name << "     " << sb.Fixed_Add.busy_tag << "      " << sb.Fixed_Add.idle << "\t\t" << sb.Fixed_Add.segment_Time << "\t\t" << sb.Fixed_Add.execution_Time;
+    os << "\n" << sb.Floating_Add.funcUnit_name << "  " << sb.Floating_Add.busy_tag << "      " << sb.Floating_Add.idle << "\t\t" << sb.Floating_Add.segment_Time << "\t\t" << sb.Floating_Add.execution_Time;
+    os << "\n" << "Floating Mult" << " " << sb.Floating_Multiply.busy_tag << "      " << sb.Floating_Multiply.idle << "\t\t" << sb.Floating_Multiply.segment_Time << "\t\t" << sb.Floating_Multiply.execution_Time;
+    os << "\n" << "Floating Div" << "  " << sb.Floating_Divide.busy_tag << "      " << sb.Floating_Divide.idle << "\t\t" << sb.Floating_Divide.segment_Time << "\t\t" << sb.Floating_Divide.execution_Time;
+    os << "\n" << sb.Normalize.funcUnit_name << "     " << sb.Normalize.busy_tag << "      " << sb.Normalize.idle << "\t\t" << sb.Normalize.segment_Time << "\t\t" << sb.Normalize.execution_Time;
+    os << "\n" << sb.Pop_count.funcUnit_name << "     " << sb.Pop_count.busy_tag << "      " << sb.Pop_count.idle << "\t\t" << sb.Pop_count.segment_Time << "\t\t" << sb.Pop_count.execution_Time;
+    os << "\n" << sb.Increment.funcUnit_name << "     " << sb.Increment.busy_tag << "      " << sb.Increment.idle << "\t\t" << sb.Increment.segment_Time << "\t\t" << sb.Increment.execution_Time;
+    os << "\n====================================================";
+
+    return os;
+}
+
+
+
+#pragma endregion
+
 int main()
 {
-    // Processor Declarations
- 
-    // Instruction stack of 12 - 60-bit registers (allows for up to 48 previously fetched instructions to be readily available in the instruction stack).
-    // 24 total registers - 5 Operand-Address pairs are used for read and 2 are used for write
-    int A[8]; // Address registers, paired with x register - 18 bits
-    int B[8]; // Index registers - 18 bits,  B0 is always 0
-    int x[8]; // Operand register paired with address register - 60 bits
-
-    B[0] = 0; // constant within the index resgister
-
-    double A_Constant = 2.0; // constant stored in memory
-    double B_Constant = 3.0; // constant stored in memory
-    double C_Constant = 4.0; // constant stored in memory
-
-    int clock_pulses = 0;
-    Scoreboard SB;
-
     // Test Data to run
     // Y = AX2 + BX
     // Y = AX2 + BX , X & Y are vectors
@@ -116,15 +123,31 @@ int main()
     }
 
     cout << "\nExiting....";
-
-    cout << SB.Boolean.funcUnit_name << "\n";
-
 }
 
 // Simluation of CDC7600 Processor
 void simulate_CDC7600(int test_data_eq)
 {
-    cout << "YEET";
+    // Processor Declarations
+
+    // Instruction stack of 12 - 60-bit registers (allows for up to 48 previously fetched instructions to be readily available in the instruction stack).
+    // 24 total registers - 5 Operand-Address pairs are used for read and 2 are used for write
+    int A[8]; // Address registers, paired with x register - 18 bits
+    int B[8]; // Index registers - 18 bits,  B0 is always 0
+    int x[8]; // Operand register paired with address register - 60 bits
+
+    B[0] = 0; // constant within the index resgister
+
+    double A_Constant = 2.0; // constant stored in memory
+    double B_Constant = 3.0; // constant stored in memory
+    double C_Constant = 4.0; // constant stored in memory
+
+    int clock_pulses = 0;
+    Scoreboard SB;
+
+
+    cout << SB;
+
 }
 
 
@@ -494,6 +517,18 @@ void INCREMENT(int Opcode)
 #pragma endregion
 
 #pragma endregion
+
+
+
+
+
+
+
+
+
+
+
+
 
 ///////////////////////////////////////////////
 /////           *** NOTES ***            //////

@@ -1,8 +1,12 @@
 #pragma once
-// Declare all functions here
+// Declare functions here
 
+
+
+// General functions
 void simulate_CDC7600(int test_data_eq);
 
+// functional units
 void Branch(int Opcode);
 void Boolean(int Opcode);
 void Shift(int Opcode);
