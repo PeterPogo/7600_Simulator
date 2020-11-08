@@ -17,6 +17,11 @@ public:
     int segment_Time; // # clock_pulses (from table)
     int execution_Time; // # clock_pulses (from table)
 
+    // Sources and Destinations being used
+    string S1; // source 1
+    string S2; // source 2
+    string D1; // destination 1 (as if there was more than 1...) destination tag bit?
+
     // Default constructor
     Func_Unit_SB()
     {
@@ -50,11 +55,6 @@ public:
     Func_Unit_SB Normalize;
     Func_Unit_SB Pop_count; // Count # 1's in a word
     Func_Unit_SB Increment; // Fetch, Decrement, Set to vector length
-
-    // Sources and Destintations per instuction
-    int source1 = 1;
-    int source2 = 2;
-    int desintation = 3; // Destination has tag bit
 
     // Default constructor
     Scoreboard()
@@ -121,7 +121,7 @@ int main()
         if (continue_response == 'n') { continue_sim = false; }
     }
 
-    cout << "\nExiting....";
+    cout << "\nExiting...."; // Simulation complete
 }
 
 // Simluation of CDC7600 Processor
@@ -285,7 +285,6 @@ void simulate_CDC7600(int test_data_eq)
     registers_used.push_back("X1, X3");
     registers_used.push_back("X3, X5, X6");
     registers_used.push_back("X4, X5, X7");
-    registers_used.push_back("X0, X1");
     registers_used.push_back("A7, X5, X7");
     #pragma endregion
 
@@ -317,16 +316,15 @@ void simulate_CDC7600(int test_data_eq)
 
 }
 
-// Format and print the Table as it is filled in, I know it's disgusting
+// Format and print the Table as rows are solved
 void output_table(vector<string> inst_word, vector<string> inst_sem, vector<string> inst_sem2, vector<string> inst_len, vector<int> issue, vector<int> start, vector<int> result, vector<int> unit_ready, vector<string> fetch, vector<string> store, vector<string> functional_unit_used, vector<string> registers_used, int rows_solved)
 {
     cout << "\n============================================================================================================================================================";
-    cout << "\n| Word # |  Semantics   |                  | inst. type | issue | start | result | unit ready | fetch | store |   Functional Unit(s)   |     Registers     |";
+    cout << "\n| Word # |  Semantics   | Semantics cont.  | Inst. type | Issue | Start | Result | Unit ready | Fetch | Store |   Functional Unit(s)   |     Registers     |";
     cout << "\n------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
     for (int i = 0; i < rows_solved; i++)
     {
-
         cout << "\n" << left
              << "    " << setw(5)  << inst_word[i] 
              << "  " << setw(10) << inst_sem[i] << "\t"
@@ -341,7 +339,7 @@ void output_table(vector<string> inst_word, vector<string> inst_sem, vector<stri
              << setw(25) << functional_unit_used[i]
              << "   "<< setw(8) << registers_used[i];
 
-        if (((i + 1) < rows_solved) && inst_word[i + 1] != "  ") { cout << "\n"; }
+        if (((i + 1) < rows_solved) && inst_word[i + 1] != "  ") { cout << "\n"; } // add newline between instruction words
     }
     cout << "\n============================================================================================================================================================";
 }
