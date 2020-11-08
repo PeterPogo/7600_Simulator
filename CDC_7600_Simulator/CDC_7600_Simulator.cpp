@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <iomanip> 
 #include "CDC_7600_Simulator.h"
 using namespace std;
 
@@ -126,6 +127,7 @@ int main()
 // Simluation of CDC7600 Processor
 void simulate_CDC7600(int test_data_eq)
 {
+    // These tables are purely for storing and outputing data, scoreboard needs to handle the logic
     #pragma region Table_Rows
     vector<string> instruction_word;
     vector<string> instruction_semantics;
@@ -163,7 +165,7 @@ void simulate_CDC7600(int test_data_eq)
     instruction_semantics.push_back("X6 = X0 * X2");
     instruction_semantics.push_back("A3 = A3 + K3");
     instruction_semantics.push_back("A4 = A4 + K4");
-    instruction_semantics.push_back("X3 = X3 + X1");
+    instruction_semantics.push_back("X3 = X3 * X1");
     instruction_semantics.push_back("X5 = X6 + X3");
     instruction_semantics.push_back("X7 = X5 + X4");
     instruction_semantics.push_back("A7 = A7 + K5");
@@ -197,35 +199,94 @@ void simulate_CDC7600(int test_data_eq)
     // Fake info for 2 rows
     issue.push_back(1);
     issue.push_back(3);
+    issue.push_back(7);
     issue.push_back(9);
+    issue.push_back(10);
+    issue.push_back(13);
+    issue.push_back(14);
+    issue.push_back(16);
+    issue.push_back(19);
+    issue.push_back(22);
 
     start.push_back(1);
     start.push_back(3);
-    start.push_back(9);
+    start.push_back(7);
+    start.push_back(12);
+    start.push_back(10);
+    start.push_back(17);
+    start.push_back(21);
+    start.push_back(24);
+    start.push_back(23);
+    start.push_back(27);
 
-    result.push_back(4);
-    result.push_back(6);
-    result.push_back(19);
 
-    unit_ready.push_back(5);
-    unit_ready.push_back(7);
-    unit_ready.push_back(20);
+    result.push_back(3);
+    result.push_back(5);
+    result.push_back(12);
+    result.push_back(17);
+    result.push_back(12);
+    result.push_back(21);
+    result.push_back(23);
+    result.push_back(25);
+    result.push_back(28);
+    result.push_back(32);
+
+    unit_ready.push_back(2);
+    unit_ready.push_back(4);
+    unit_ready.push_back(9);
+    unit_ready.push_back(14);
+    unit_ready.push_back(11);
+    unit_ready.push_back(18);
+    unit_ready.push_back(22);
+    unit_ready.push_back(24);
+    unit_ready.push_back(26);
+    unit_ready.push_back(28);
 
     fetch.push_back(to_string(9));
     fetch.push_back(to_string(11));
+    fetch.push_back(" ");
+    fetch.push_back(" ");
+    fetch.push_back(to_string(16));
+    fetch.push_back(to_string(18));
+    fetch.push_back(" ");
+    fetch.push_back(" ");
+    fetch.push_back(" ");
     fetch.push_back(" ");
 
     store.push_back(" ");
     store.push_back(" ");
     store.push_back(" ");
+    store.push_back(" ");
+    store.push_back(" ");
+    store.push_back(" ");
+    store.push_back(" ");
+    store.push_back(" ");
+    store.push_back(" ");
+    store.push_back("27");
 
     functional_unit_used.push_back("Increment");
     functional_unit_used.push_back("Increment");
     functional_unit_used.push_back("FL multiply, Normalize");
+    functional_unit_used.push_back("FL multiply, Normalize");
+    functional_unit_used.push_back("Increment");
+    functional_unit_used.push_back("Increment");
+    functional_unit_used.push_back("FL multiply, Normalize");
+    functional_unit_used.push_back("FL add, Normalize");
+    functional_unit_used.push_back("FL add, Normalize");
+    functional_unit_used.push_back("Increment");
+
 
     registers_used.push_back("A1, X1");
     registers_used.push_back("A2, X2");
     registers_used.push_back("X0, X1");
+    registers_used.push_back("X0, X2, X6");
+    registers_used.push_back("A3, X3");
+    registers_used.push_back("A4, X4");
+    registers_used.push_back("X1, X3");
+    registers_used.push_back("X3, X5, X6");
+    registers_used.push_back("X4, X5, X7");
+    registers_used.push_back("X0, X1");
+    registers_used.push_back("A7, X5, X7");
     #pragma endregion
 
     #pragma region Construct base table for Eq3  Y = AX^2 + BX (X & Y = vectors)
@@ -250,26 +311,39 @@ void simulate_CDC7600(int test_data_eq)
     Scoreboard SB;
 
     // Testing output
-    output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 3);
+    output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 10);
 
-    cout << SB;
+    cout << "\n\n" << SB;
 
 }
 
 // Format and print the Table as it is filled in, I know it's disgusting
 void output_table(vector<string> inst_word, vector<string> inst_sem, vector<string> inst_sem2, vector<string> inst_len, vector<int> issue, vector<int> start, vector<int> result, vector<int> unit_ready, vector<string> fetch, vector<string> store, vector<string> functional_unit_used, vector<string> registers_used, int rows_solved)
 {
-    cout << "\n==========================================================================================================================================================";
-    cout << "\n| Word # |  Semantics   |            | inst. type | issue | start | result | unit ready | fetch | store |   Functional Unit(s)   |        Registers      |";
+    cout << "\n============================================================================================================================================================";
+    cout << "\n| Word # |  Semantics   |                  | inst. type | issue | start | result | unit ready | fetch | store |   Functional Unit(s)   |     Registers     |";
+    cout << "\n------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
     for (int i = 0; i < rows_solved; i++)
     {
-        cout << "\n    " << inst_word[i] << "     " << inst_sem[i] << "     " << inst_sem2[i] << "\t  " << inst_len[i] << "\t      " << issue[i] << "\t      "
-            << start[i] << "\t      " << result[i] << "          " << unit_ready[i] << "\t     " << fetch[i] << "\t  " << store[i] << "\t   " << functional_unit_used[i]
-            << "                 " << registers_used[i];
 
+        cout << "\n" << left
+             << "    " << setw(5)  << inst_word[i] 
+             << "  " << setw(10) << inst_sem[i] << "\t"
+             << "   " << setw(15) << inst_sem2[i] << "\t"
+             << setw(5) << inst_len[i] << "\t"
+             << "    " << setw(3) << issue[i] << "\t"
+             << "    " << setw(3) << start[i] << "\t"
+             << "    " << setw(3) << result[i] << "\t"
+             << "       " << setw(3) << unit_ready[i] << "\t"
+             << " " << setw(3) << fetch[i] << "\t"
+             << " " << setw(3) << store[i] << "\t"
+             << setw(25) << functional_unit_used[i]
+             << "   "<< setw(8) << registers_used[i];
+
+        if (((i + 1) < rows_solved) && inst_word[i + 1] != "  ") { cout << "\n"; }
     }
-    cout << "\n==========================================================================================================================================================";
+    cout << "\n============================================================================================================================================================";
 }
 
 // Functional units and functions
