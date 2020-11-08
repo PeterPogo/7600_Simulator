@@ -249,6 +249,7 @@ void simulate_CDC7600(int test_data_eq)
     int clock_pulses = 0;
     Scoreboard SB;
 
+    // Testing output
     output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 3);
 
     cout << SB;
