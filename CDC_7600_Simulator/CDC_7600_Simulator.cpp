@@ -255,7 +255,7 @@ void simulate_CDC7600(int test_data_eq)
 
 }
 
-// Format and print the Table as it is filled in
+// Format and print the Table as it is filled in, I know it's disgusting
 void output_table(vector<string> inst_word, vector<string> inst_sem, vector<string> inst_sem2, vector<string> inst_len, vector<int> issue, vector<int> start, vector<int> result, vector<int> unit_ready, vector<string> fetch, vector<string> store, vector<string> functional_unit_used, vector<string> registers_used, int rows_solved)
 {
     cout << "\n==========================================================================================================================================================";
