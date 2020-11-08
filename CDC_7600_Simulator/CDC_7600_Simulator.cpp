@@ -1,5 +1,4 @@
 // CDC_7600_Simulator.cpp : This file contains the 'main' function. Program execution begins and ends there.
-
 // Simulating how to the scoreboard works
 
 #include <iostream>
@@ -90,6 +89,33 @@ int main()
     int clock_pulses = 0;
     Scoreboard SB;
 
+    // Test Data to run
+    // Y = AX2 + BX
+    // Y = AX2 + BX , X & Y are vectors
+    // Y = AX2 + BX + C
+
+    // Start simulation by asking for input
+    int test_data_choice;
+    bool continue_sim = true;
+    char continue_response;
+
+    cout << "--- CDC 7600 Simulator ---";
+    while (continue_sim)
+    {
+        cout <<"\n\nChose an equation to simulate:" << "\n1: Y = AX2 + BX" << "\n2: Y = AX2 + BX + C" << "\n3: Y = AX2 + BX (X & Y = vectors)\n\n";
+        cin >> test_data_choice;
+
+        cout << "\nYou have chosen option: " << test_data_choice;
+
+        // Do simulation here
+
+        cout << "\nSimulation complete, would you like to simulate another test data? y/n:  ";
+        cin >> continue_response;
+        if (continue_response == 'n') { continue_sim = false; }
+    }
+
+    cout << "\nExiting....";
+
     cout << SB.Boolean.funcUnit_name << "\n";
 
 }
@@ -114,38 +140,43 @@ void Branch(int Opcode)
         {
 
         }
-        case 030: // GO TO K if Xj == 0, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
-        {
 
-        }
-        case 031: // GO TO K if Xj != 0, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
-        {
+        #pragma region Not used according to "Test Data", assume increment unit is used as partner
+        //case 030: // GO TO K if Xj == 0, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        //{
 
-        }
-        case 032: // GO TO K if Xj == positive, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
-        {
+        //}
+        //case 031: // GO TO K if Xj != 0, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        //{
 
-        }
-        case 033: // GO TO K if Xj == negative, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
-        {
+        //}
+        //case 032: // GO TO K if Xj == positive, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        //{
 
-        }
-        case 034: // GO TO K if Xj is in range, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
-        {
+        //}
+        //case 033: // GO TO K if Xj == negative, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        //{
 
-        }
-        case 035: // GO TO K if Xj is out of range, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
-        {
+        //}
+        //case 034: // GO TO K if Xj is in range, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        //{
 
-        }
-        case 036: // GO TO K if Xj is definite, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
-        {
+        //}
+        //case 035: // GO TO K if Xj is out of range, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        //{
+
+        //}
+        //case 036: // GO TO K if Xj is definite, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        //{
     
-        }
-        case 037: // GO TO K if XJ is indefinite, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
-        {
+        //}
+        //case 037: // GO TO K if XJ is indefinite, 9 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        //{
 
-        }
+        //}
+        #pragma endregion
+
+
         case 04: // GO TO K if Bi == Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
         {
 
@@ -455,7 +486,6 @@ void INCREMENT(int Opcode)
 #pragma endregion
 
 #pragma endregion
-
 
 
 ///////////////////////////////////////////////
