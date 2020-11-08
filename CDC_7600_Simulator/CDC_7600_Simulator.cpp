@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "CDC_7600_Simulator.h"
 using namespace std;
 
 class Func_Unit_SB
@@ -74,6 +75,8 @@ public:
 
 int main()
 {
+    // Processor Declarations
+ 
     // Instruction stack of 12 - 60-bit registers (allows for up to 48 previously fetched instructions to be readily available in the instruction stack).
     // 24 total registers - 5 Operand-Address pairs are used for read and 2 are used for write
     int A[8]; // Address registers, paired with x register - 18 bits
@@ -105,9 +108,7 @@ int main()
         cout <<"\n\nChose an equation to simulate:" << "\n1: Y = AX2 + BX" << "\n2: Y = AX2 + BX + C" << "\n3: Y = AX2 + BX (X & Y = vectors)\n\n";
         cin >> test_data_choice;
 
-        cout << "\nYou have chosen option: " << test_data_choice;
-
-        // Do simulation here
+        simulate_CDC7600(test_data_choice);
 
         cout << "\nSimulation complete, would you like to simulate another test data? y/n:  ";
         cin >> continue_response;
@@ -119,6 +120,13 @@ int main()
     cout << SB.Boolean.funcUnit_name << "\n";
 
 }
+
+// Simluation of CDC7600 Processor
+void simulate_CDC7600(int test_data_eq)
+{
+    cout << "YEET";
+}
+
 
 // Functional units and functions
 #pragma region Functional Units and implementations
@@ -486,7 +494,6 @@ void INCREMENT(int Opcode)
 #pragma endregion
 
 #pragma endregion
-
 
 ///////////////////////////////////////////////
 /////           *** NOTES ***            //////

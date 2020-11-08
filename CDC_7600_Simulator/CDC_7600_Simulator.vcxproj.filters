@@ -18,8 +18,10 @@
     <ClCompile Include="CDC_7600_Simulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CDC_7600_Simulator.h">
       <Filter>Source Files</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
 </Project>
