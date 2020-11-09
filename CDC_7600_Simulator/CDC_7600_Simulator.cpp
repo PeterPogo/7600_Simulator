@@ -1,5 +1,12 @@
 // CDC_7600_Simulator.cpp : This file contains the 'main' function. Program execution begins and ends there.
-// Simulating how to the scoreboard works
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Desc: CDC 7600 & CDC 6600 Simulator                                               //
+// Class: CpE 5120                                                                   //
+// Instructor: Dr. Ali Hurson                                                        //
+// Date: 11/8/2020                   FS20                                            //
+// Piotr Pogorzelski, Kendall Butler                                                 //
+///////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <string>
@@ -39,6 +46,10 @@ public:
         busy_tag = Busy;
         segment_Time = Seg_time;
         execution_Time = Ex_time;
+
+        S1 = "B1";
+        S2 = "A3";
+        D1 = "X3";
     }
 };
 
@@ -78,18 +89,19 @@ public:
 // Overload << operator for Scoreboard Class
 ostream& operator<<(ostream& os, const Scoreboard& sb)
 {
-    os << "\n====================================================";
-    os << "\n|Func Unit|busy_tag|idle|segment_time|execution_time";
-    os << "\n" << sb.Boolean.funcUnit_name << "       " << sb.Boolean.busy_tag << "      " << sb.Boolean.idle << "\t\t" << sb.Boolean.segment_Time << "\t\t" << sb.Boolean.execution_Time;
-    os << "\n" << sb.Shift.funcUnit_name << "         " << sb.Shift.busy_tag << "      " << sb.Shift.idle << "\t\t" << sb.Shift.segment_Time << "\t\t" << sb.Shift.execution_Time;
-    os << "\n" << sb.Fixed_Add.funcUnit_name << "     " << sb.Fixed_Add.busy_tag << "      " << sb.Fixed_Add.idle << "\t\t" << sb.Fixed_Add.segment_Time << "\t\t" << sb.Fixed_Add.execution_Time;
-    os << "\n" << sb.Floating_Add.funcUnit_name << "  " << sb.Floating_Add.busy_tag << "      " << sb.Floating_Add.idle << "\t\t" << sb.Floating_Add.segment_Time << "\t\t" << sb.Floating_Add.execution_Time;
-    os << "\n" << "Floating Mult" << " " << sb.Floating_Multiply.busy_tag << "      " << sb.Floating_Multiply.idle << "\t\t" << sb.Floating_Multiply.segment_Time << "\t\t" << sb.Floating_Multiply.execution_Time;
-    os << "\n" << "Floating Div" << "  " << sb.Floating_Divide.busy_tag << "      " << sb.Floating_Divide.idle << "\t\t" << sb.Floating_Divide.segment_Time << "\t\t" << sb.Floating_Divide.execution_Time;
-    os << "\n" << sb.Normalize.funcUnit_name << "     " << sb.Normalize.busy_tag << "      " << sb.Normalize.idle << "\t\t" << sb.Normalize.segment_Time << "\t\t" << sb.Normalize.execution_Time;
-    os << "\n" << sb.Pop_count.funcUnit_name << "     " << sb.Pop_count.busy_tag << "      " << sb.Pop_count.idle << "\t\t" << sb.Pop_count.segment_Time << "\t\t" << sb.Pop_count.execution_Time;
-    os << "\n" << sb.Increment.funcUnit_name << "     " << sb.Increment.busy_tag << "      " << sb.Increment.idle << "\t\t" << sb.Increment.segment_Time << "\t\t" << sb.Increment.execution_Time;
-    os << "\n====================================================";
+    os << "\n======================================== ScoreBoard ============================================";
+    os << "\n| Func Unit | busy_tag| idle | segment_time | execution_time | Source 1 | Source 2 | Destination";
+    os << "\n------------------------------------------------------------------------------------------------";
+    os << "\n" << sb.Boolean.funcUnit_name << "           " << sb.Boolean.busy_tag << "      " << sb.Boolean.idle << "\t    " << sb.Boolean.segment_Time << "\t\t    " << sb.Boolean.execution_Time << "\t\t  " << sb.Boolean.S1 << "\t     " << sb.Boolean.S2 << "\t\t " << sb.Boolean.D1;
+    os << "\n" << sb.Shift.funcUnit_name << "             " << sb.Shift.busy_tag << "      " << sb.Shift.idle << "\t    " << sb.Shift.segment_Time << "\t\t    " << sb.Shift.execution_Time << "\t\t  " << sb.Shift.S1 << "\t     " << sb.Shift.S2 << "\t\t " << sb.Shift.D1;
+    os << "\n" << sb.Fixed_Add.funcUnit_name << "         " << sb.Fixed_Add.busy_tag << "      " << sb.Fixed_Add.idle << "\t    " << sb.Fixed_Add.segment_Time << "\t\t    " << sb.Fixed_Add.execution_Time << "\t\t  " << sb.Fixed_Add.S1 << "\t     " << sb.Fixed_Add.S2 << "\t\t " << sb.Fixed_Add.D1;
+    os << "\n" << sb.Floating_Add.funcUnit_name << "      " << sb.Floating_Add.busy_tag << "      " << sb.Floating_Add.idle << "\t    " << sb.Floating_Add.segment_Time << "\t\t    " << sb.Floating_Add.execution_Time << "\t\t  " << sb.Floating_Add.S1 << "\t     " << sb.Floating_Add.S2 << "\t\t " << sb.Floating_Add.D1;;
+    os << "\n" << "Floating Mult" << "     " << sb.Floating_Multiply.busy_tag << "      " << sb.Floating_Multiply.idle << "\t    " << sb.Floating_Multiply.segment_Time << "\t\t    " << sb.Floating_Multiply.execution_Time << "\t\t  " << sb.Floating_Multiply.S1 << "\t     " << sb.Floating_Multiply.S2 << "\t\t " << sb.Floating_Multiply.D1;
+    os << "\n" << "Floating Div" << "      " << sb.Floating_Divide.busy_tag << "      " << sb.Floating_Divide.idle << "\t    " << sb.Floating_Divide.segment_Time << "\t\t    " << sb.Floating_Divide.execution_Time << "\t\t  " << sb.Floating_Divide.S1 << "\t     " << sb.Floating_Divide.S2 << "\t\t " << sb.Floating_Divide.D1;
+    os << "\n" << sb.Normalize.funcUnit_name << "         " << sb.Normalize.busy_tag << "      " << sb.Normalize.idle << "\t    " << sb.Normalize.segment_Time << "\t\t    " << sb.Normalize.execution_Time << "\t\t  " << sb.Normalize.S1 << "\t     " << sb.Normalize.S2 << "\t\t " << sb.Normalize.D1;
+    os << "\n" << sb.Pop_count.funcUnit_name << "         " << sb.Pop_count.busy_tag << "      " << sb.Pop_count.idle << "\t    " << sb.Pop_count.segment_Time << "\t\t    " << sb.Pop_count.execution_Time << "\t\t  " << sb.Pop_count.S1 << "\t     " << sb.Pop_count.S2 << "\t\t " << sb.Pop_count.D1;
+    os << "\n" << sb.Increment.funcUnit_name << "         " << sb.Increment.busy_tag << "      " << sb.Increment.idle << "\t    " << sb.Increment.segment_Time << "\t\t    " << sb.Increment.execution_Time << "\t\t  " << sb.Increment.S1 << "\t     " << sb.Increment.S2 << "\t\t " << sb.Increment.D1;
+    os << "\n================================================================================================";
 
     return os;
 }
@@ -710,7 +722,6 @@ void INCREMENT(int Opcode)
 #pragma endregion
 
 #pragma endregion
-
 
 
 ///////////////////////////////////////////////
