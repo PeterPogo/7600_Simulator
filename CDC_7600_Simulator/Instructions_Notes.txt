@@ -1,20 +1,23 @@
-110010 001 001 000000000000000001  increment(50) A1 = A1 + K1              Fetch X     N1
-110010 010 010 000000000000000010  increment(50) A2 = A2 + K2              Fetch A
+101000 001 001 000000000000000001  increment(50) A1 = A1 + K1              Fetch X     N1
+101000 010 010 000000000000000010  increment(50) A2 = A2 + K2              Fetch A
 
-110010 011 011 000000000000000011  increment(50) A3 = A3 + K3              Fetch B       N2
-110010 100 100 000000000000000100  increment(50) A4 = A4 + K4              Fetch C
+101000 011 011 000000000000000011  increment(50) A3 = A3 + K3              Fetch B       N2
+101000 100 100 000000000000000100  increment(50) A4 = A4 + K4              Fetch C
 
-111101 001 000 000000000000000001  increment(61) B1 = B0 + 1               Set B1 to 1 --> B0 is always 0         N3
-111101 010 000 000000000000000101  increment(61) B2 = B0 + K5              Set B2 to vector length --> B0 is always 0 
+110001 001 000 000000000000000001  increment(61) B1 = B0 + 1               Set B1 to 1 --> B0 is always 0         N3
+110001 010 000 000000000000000101  increment(61) B2 = B0 + K5              Set B2 to vector length --> B0 is always 0 
 
-101000 001 001 000                 FL_multiply(40)  X0 = X1 * X1           Form X^2                  N4
-101000 000 010 110                 FL_multiply(40)  X6 = X0 * X2           Form AX^2
-101000 001 001 000                 FL_multiply(40)  X0 = X1 * X1           Form BX
-?????? 001 001 000000000000000001  increment(64) A1 = A1 + B1              Fetch next X
+100000 001 001 000                 FL_multiply(40)  X0 = X1 * X1           Form X^2                  N4
+100000 000 010 110                 FL_multiply(40)  X6 = X0 * X2           Form AX^2
+100000 001 001 000                 FL_multiply(40)  X0 = X1 * X1           Form BX
+110100 001 001 000000000000000001  increment(64) A1 = A1 + B1              Fetch next X
 
-?????? 010 010 001                 increment(67) B2 = B2 - B1              Decrement B2               N5   
-011110 101 110 000                 FL_add(30) X5 = X6 + X0                 Form AX^2 + BX
-011110 111 101 100                 FL_add(30) X7 = X5 + X4                 Form Y
-110110 111 111 001                 increment(54) A7 = A7 + B1              Store Y
+110111 010 010 001                 increment(67) B2 = B2 - B1              Decrement B2               N5   
+011000 101 110 000                 FL_add(30) X5 = X6 + X0                 Form AX^2 + BX
+011000 111 101 100                 FL_add(30) X7 = X5 + X4                 Form Y
+101100 111 111 001                 increment(54) A7 = A7 + B1              Store Y
 
 000101 100 010 000000000000000000  Branch(05)    Go to N4 if B2 != 0(B0)      N6
+
+
+Op-code is in Octals!!!

@@ -14,6 +14,7 @@
 #include <vector>
 #include <bitset>
 #include <iomanip> 
+#include <cmath>
 #include "CDC_7600_Simulator.h"
 using namespace std;
 
@@ -145,6 +146,8 @@ int main()
     string instruction;
     vector<string> instructions;
 
+    string semantic;
+
 
     cout << "--- CDC 7600 Simulator ---";
     while (continue_sim)
@@ -155,18 +158,40 @@ int main()
         // Read in instructions from file
         cout << "\n\nReading instructions from file (binary).....\n\n";
 
-        ifstream input_file("instructions.txt");
-        if (input_file.is_open())
+        // Read in semantics
+        ifstream sem_input_file("semantics.txt");
+        if (sem_input_file.is_open())
         {
-            while ( getline(input_file, instruction))
+            while (getline(sem_input_file, semantic))
+            {
+                instruction_semantics_2.push_back(semantic);
+            }
+            sem_input_file.close();
+        }
+        else 
+        {
+            cout << "\nUnable to open semantics file";
+            break;
+        }
+
+        // Read in binary
+        ifstream inst_input_file("instructions.txt");
+        if (inst_input_file.is_open())
+        {
+            while ( getline(inst_input_file, instruction))
             {
                 instructions.push_back(instruction);
-                cout << "Instruction " << inst_count << ": " << instruction << " " << instruction.length() << '\n';
+                cout << "Instruction " << inst_count << ": " << instruction << " " << instruction_semantics_2[inst_count] <<'\n';
                 inst_count++;
             }
-            input_file.close();
+            inst_input_file.close();
         }
-        else { cout << "\nUnable to open file"; }
+        else
+        { 
+            cout << "\nUnable to open instructions file";
+            break;
+        }
+
 
         // Create blank table and fill in vectors by decoding
        create_blank_table(instructions);
@@ -211,9 +236,9 @@ void create_blank_table(vector<string> instructions_v)
     // Fill Semantics 1 & 2, increment unit, and registers used, (Big ole switchcase)
     for (string inst : instructions_v)
     {
-        unsigned long opcode = bitset<6>(inst.substr(0, 6)).to_ulong(); // Convert first 6 bits to Op-Code
+        unsigned long opcode = to_octal(bitset<6>(inst.substr(0, 6)).to_ulong()); // Convert first 6 bits to Op-Code
 
-        // Send Op-code to the switchcase
+        // Send Op-code to the switchcase (octal)
         if ((opcode >= 00) && (opcode <= 7)) { BRANCH(opcode, inst); }
         else if ((opcode >= 10) && (opcode <= 17)) { BOOLEAN(opcode, inst); }
         else if ((opcode >= 20) && (opcode <= 27) || (opcode == 43)) { SHIFT(opcode, inst); }
@@ -432,28 +457,61 @@ void output_table(vector<string> inst_word, vector<string> inst_sem, vector<stri
     cout << "\n============================================================================================================================================================";
 }
 
+// Convert decimal form of binary opcode to an octal number
+unsigned long to_octal(unsigned long binary_num)
+{
+    int rem, i = 1, octalNumber = 0;
+    while (binary_num != 0)
+    {
+        rem = binary_num % 8;
+        binary_num /= 8;
+        octalNumber += rem * i;
+        i *= 10;
+    }
+    return octalNumber;
+}
+
 // Functional units and functions
 #pragma region Functional Units and implementations
 
 #pragma region Branch Unit
 void BRANCH(int Opcode, string inst)
 {
+    string semantic_string;
+
     switch (Opcode)
     {
         case 00: // Stop, 0 clocks
         {
-            //instruction_semantics;
-            //instruction_semantics_2;
-            //functional_unit_used;
-            //registers_used;
+            instruction_semantics.push_back("-");
+            functional_unit_used.push_back("Branch, Increment, Boolean");
+            registers_used.push_back("-");
         }
         case 01: // RETURN JUMP to K, 14 clocks
         {
-
+            if (inst.length() > 15) { instruction_semantics.push_back("RETURN JUMP to K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong())); }
+            else { instruction_semantics.push_back("RETURN JUMP to K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong())); }
+          
+            functional_unit_used.push_back("Branch, Increment, Boolean");
+            registers_used.push_back("-");
         }
         case 02: // GO TO K + Bi (note 1), 14 clocks
         {
+            semantic_string = "";
+            if (inst.length() > 15)
+            { 
+                semantic_string+= "Go to K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+                semantic_string += " + B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+            }
+            else 
+            {
+                semantic_string += "Go to K" + to_string(bitset<6>(inst.substr(12, 3)).to_ulong());
+                semantic_string += " + B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+            }
+            instruction_semantics.push_back(semantic_string);
 
+            functional_unit_used.push_back("Branch, Increment, Boolean");
+            registers_used.push_back(semantic_string.substr((semantic_string.length()) - 2, 2));
         }
 
         #pragma region Not used according to "Test Data", assume increment unit is used as partner
@@ -491,7 +549,6 @@ void BRANCH(int Opcode, string inst)
         //}
         #pragma endregion
 
-
         case 04: // GO TO K if Bi == Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
         {
 
@@ -516,14 +573,67 @@ void BRANCH(int Opcode, string inst)
 #pragma region Boolean Unit
 void BOOLEAN(int Opcode, string inst)
 {
+    string semantic_string;
+    string register_string;
+    string destination;
+    string operand1;
+    string operand2;
+
     switch (Opcode)
     {
         case 10: // TRANSMIT Xj to Xi, 3 clocks
         {
+            semantic_string = "";
+            destination = "";
+            operand1 = "";
+
+            if (inst.length() > 15)
+            {
+                destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+                operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+                semantic_string = "TRANSMIT " + operand1 + " to " + destination;
+            }
+            else
+            {
+                destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+                operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+                semantic_string = "TRANSMIT " + operand1 + " to " + destination;
+            }
+            instruction_semantics.push_back(semantic_string);
+            functional_unit_used.push_back("Boolean");
+
+            registers_used.push_back(destination + ", " + operand1);
 
         }
         case 11: // LOGICAL PRODUCT of Xj and Xk to Xi, 3 clocks
         {
+            semantic_string = "";
+            destination = "";
+            operand1 = "";
+            operand2 = "";
+
+            if (inst.length() > 15)
+            {
+                destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+                operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+                operand2= "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+
+                semantic_string = destination + " = " + operand1 + " & " +  operand2;
+            }
+            else
+            {
+                destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+                operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+
+                semantic_string = destination + " = " + operand1 + " & " + operand2;
+            }
+            instruction_semantics.push_back(semantic_string);
+            functional_unit_used.push_back("Boolean");
+
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
 
         }
         case 12: // LOGICAL SUM of Xj and Xk to Xi, 3 clocks
@@ -801,11 +911,6 @@ void INCREMENT(int Opcode, string inst)
 #pragma endregion
 
 #pragma endregion
-
-
-
-
-
 
 
 

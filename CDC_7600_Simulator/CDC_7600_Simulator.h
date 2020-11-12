@@ -11,6 +11,8 @@ using namespace std;
 void simulate_CDC7600(int test_data_eq);
 void create_blank_table(vector<string> instructions_v);
 void output_table(vector<string> inst_word, vector<string> inst_sem, vector<string> inst_sem2, vector<string> inst_len, vector<int> issue, vector<int> start, vector<int> result, vector<int> unit_ready, vector<string> fetch, vector<string> store, vector<string> functional_unit_used, vector<string> registers_used, int rows_solved);
+unsigned long to_octal(unsigned long binary_num);
+
 
 // functional units
 void BRANCH(int Opcode, string inst);
