@@ -10,7 +10,7 @@
 100000 001 001 000                 FL_multiply(40)  X0 = X1 * X1           Form X^2                  N4
 100000 000 010 110                 FL_multiply(40)  X6 = X0 * X2           Form AX^2
 100000 001 001 000                 FL_multiply(40)  X0 = X1 * X1           Form BX
-110100 001 001 000000000000000001  increment(64) A1 = A1 + B1              Fetch next X
+110100 001 001 001                 increment(64) A1 = A1 + B1              Fetch next X
 
 110111 010 010 001                 increment(67) B2 = B2 - B1              Decrement B2               N5   
 011000 101 110 000                 FL_add(30) X5 = X6 + X0                 Form AX^2 + BX

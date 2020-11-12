@@ -17,10 +17,13 @@ string get_unique_registers(string dest, string op1, string op2);
 
 // functional units
 void BRANCH(int Opcode, string inst);
-void BOOLEAN(int Opcode, string inst);
-void SHIFT(int Opcode, string inst);
-void ADD(int Opcode, string inst);
-void LONG_ADD(int Opcode, string inst);
-void DIVIDE(int Opcode, string inst);
-void MULTIPLY(int Opcode, string inst);
-void INCREMENT(int Opcode, string inst);
+void BOOLEAN(int Opcode, string inst); // CDC7600
+void SHIFT(int Opcode, string inst); // CDC7600
+void ADD(int Opcode, string inst); // CDC7600
+void LONG_ADD(int Opcode, string inst); // CDC7600
+void DIVIDE(int Opcode, string inst); // CDC7600
+void MULTIPLY(int Opcode, string inst); // CDC7600
+void INCREMENT(int Opcode, string inst); // CDC7600
+void NORMALIZE(int Opcode, string inst); // CDC7600
+void POP_COUNT(int Opcode, string inst); // CDC7600
+
