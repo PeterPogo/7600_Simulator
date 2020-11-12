@@ -1175,23 +1175,85 @@ void LONG_ADD(int Opcode, string inst)
 #pragma region DIVIDE Unit
 void DIVIDE(int Opcode, string inst)
 {
+    string semantic_string = "";
+    string register_string = "";
+    string destination = "";
+    string operand1 = "";
+    string operand2 = "";
+
     switch (Opcode)
     {
         case 44: // FLOATING DIVIDE Xj by Xk to Xi, 29 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " / " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Divide");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 45: // ROUND FLOATING DIVIDE  Xj by Xk to Xi, 29 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "Round " + destination + " = " + operand1 + " / " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Divide");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 46: // PASS, 0 clocks
         {
+            semantic_string = "Pass";
+            instruction_semantics.push_back(semantic_string);
 
+            functional_unit_used.push_back("Divide");
+
+            registers_used.push_back(" ");
         }
         case 47: // SUM of 1's in Xk to Xi, 8 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "SUM 1's in " + operand2 + " to " + destination;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Divide");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
     }
 }
