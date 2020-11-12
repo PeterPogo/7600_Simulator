@@ -28,5 +28,8 @@
     <Text Include="instructions.txt">
       <Filter>Source Files</Filter>
     </Text>
+    <Text Include="Instructions_Notes.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
