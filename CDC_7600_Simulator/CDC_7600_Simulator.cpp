@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <bitset>
 #include <iomanip> 
 #include "CDC_7600_Simulator.h"
 using namespace std;
@@ -160,22 +161,58 @@ int main()
             while ( getline(input_file, instruction))
             {
                 instructions.push_back(instruction);
-                cout << "Instruction " << inst_count << ": " << instruction << '\n';
+                cout << "Instruction " << inst_count << ": " << instruction << " " << instruction.length() << '\n';
                 inst_count++;
             }
             input_file.close();
         }
         else { cout << "\nUnable to open file"; }
 
-       // Create_Blank_Table(instructions);
+        // Create blank table and fill in vectors by decoding
+       create_blank_table(instructions);
+
+
        // simulate_CDC7600(test_data_choice);
 
         cout << "\n\nSimulation complete, would you like to simulate another set of instructions? y/n:  ";
         cin >> continue_response;
         if (continue_response == 'n') { continue_sim = false; }
     }
-
     cout << "\nExiting...."; // Simulation complete
+}
+
+void create_blank_table(vector<string> instructions_v)
+{
+    //Fill lengths (short/long)
+    for (string inst : instructions_v)
+    {
+        if (inst.length() > 15) { instruction_length.push_back("Long"); }
+        else { instruction_length.push_back("Short"); }
+    }
+
+    //Fill word splits
+    int current_word_length = 0;
+    int current_word_count = 2;
+    instruction_word.push_back("N1"); // always gotta start at N1
+
+    for (string inst : instructions_v)
+    {
+        current_word_length += inst.length();
+
+        if (current_word_length >= 60)
+        { 
+            instruction_word.push_back("N" + to_string(current_word_count));
+            current_word_count++;
+            current_word_length = 0;
+        }
+        else { instruction_word.push_back("  "); }
+    }
+
+    // Fill Semantics 1 & 2, increment unit, and registers used
+    for (string inst : instructions_v)
+    {
+        decode_instruction(inst);
+    }
 }
 
 // Simluation of CDC7600 Processor
@@ -385,11 +422,29 @@ void output_table(vector<string> inst_word, vector<string> inst_sem, vector<stri
     cout << "\n============================================================================================================================================================";
 }
 
+
+// Decode instruction for Semantics, Func unit(s), and registers used (Big ole switchcase)
+void decode_instruction(string inst)
+{
+    unsigned long opcode = bitset<6>(inst.substr(0, 6)).to_ulong(); // Convert first 6 bits to Op-Code
+
+    if      ((opcode >= 00) && (opcode <= 7)) { BRANCH(opcode, inst); }
+    else if ((opcode >= 10) && (opcode <= 17)) { BOOLEAN(opcode, inst); }
+    else if ((opcode >= 20) && (opcode <= 27) || (opcode == 43)) { SHIFT(opcode, inst); }
+    else if ((opcode >= 30) && (opcode <= 35)) { ADD(opcode, inst); }
+    else if ((opcode >= 36) && (opcode <= 37)) { LONG_ADD(opcode, inst); }
+    else if ((opcode >= 40) && (opcode <= 42)) { MULTIPLY(opcode, inst); }
+    else if ((opcode >= 44) && (opcode <= 47)) { DIVIDE(opcode, inst); }
+    else if ((opcode >= 50) && (opcode <= 77)) { INCREMENT(opcode, inst); }
+}
+
+
+
 // Functional units and functions
 #pragma region Functional Units and implementations
 
 #pragma region Branch Unit
-void Branch(int Opcode)
+void BRANCH(int Opcode, string inst)
 {
     switch (Opcode)
     {
@@ -464,7 +519,7 @@ void Branch(int Opcode)
 #pragma endregion
 
 #pragma region Boolean Unit
-void Boolean(int Opcode)
+void BOOLEAN(int Opcode, string inst)
 {
     switch (Opcode)
     {
@@ -505,7 +560,7 @@ void Boolean(int Opcode)
 #pragma endregion
 
 #pragma region Shift Unit
-void Shift(int Opcode) 
+void SHIFT(int Opcode, string inst)
 {
     switch (Opcode)
     {
@@ -550,7 +605,7 @@ void Shift(int Opcode)
 #pragma endregion
 
 #pragma region ADD Unit
-void ADD(int Opcode) 
+void ADD(int Opcode, string inst)
 {
     switch (Opcode)
     {
@@ -583,7 +638,7 @@ void ADD(int Opcode)
 #pragma endregion
 
 #pragma region LONG ADD Unit
-void LONG_ADD(int Opcode)
+void LONG_ADD(int Opcode, string inst)
 {
     switch (Opcode)
     {
@@ -600,7 +655,7 @@ void LONG_ADD(int Opcode)
 #pragma endregion
 
 #pragma region DIVIDE Unit
-void DIVIDE(int Opcode)
+void DIVIDE(int Opcode, string inst)
 {
     switch (Opcode)
     {
@@ -625,7 +680,7 @@ void DIVIDE(int Opcode)
 #pragma endregion
 
 #pragma region MULTIPLY Unit
-void MULTIPLY(int Opcode)
+void MULTIPLY(int Opcode, string inst)
 {
     switch (Opcode)
     {
@@ -646,7 +701,7 @@ void MULTIPLY(int Opcode)
 #pragma endregion
 
 #pragma region INCREMENT Unit
-void INCREMENT(int Opcode)
+void INCREMENT(int Opcode, string inst)
 {
     switch (Opcode)
     {
