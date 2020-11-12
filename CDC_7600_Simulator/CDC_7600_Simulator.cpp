@@ -1348,101 +1348,509 @@ void INCREMENT(int Opcode, string inst)
 
     switch (Opcode)
     {
-        case 50: // SUM  of Aj and K to Ai, 3 clocks
+        case 50: // SUM of Aj and K to Ai, 3 clocks
         {
+            destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 51: // SUM of Bj and K to Ai, 3 clocks
         {
+            destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 52: // SUM of Xj and K to Ai, 3 clocks
         {
+            destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 53: // SUM of Xj and Bk to Ai, 3 clocks
         {
+            destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 54: // SUM of Aj and Bk to Ai, 3 clocks
         {
+            destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 55: // DIFFERENCE of Aj and Bk to Ai, 3 clocks
         {
+            destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 56: // SUM of Bj and Bk to Zi, 3 clocks
         {
+            destination = "Z" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 57: // DIFFERENCE of Bj and Bk to Zi, 3 clocks
         {
+            destination = "Z" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 60: // SUM of Aj and K to Bi, 3 clocks
         {
+            destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 61: // SUM of Bj and K to Bi, 3 clocks
         {
+            destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 62: // SUM of Xj and K to Bi, 3 clocks
         {
+            destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 63: // SUM of Xj and Bk to Bi, 3 clocks
         {
+            destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 64: // SUM of Aj and Bk to Bi, 3 clocks
         {
+            destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 65: // DIFFERENCE of Aj and Bk to Bi, 3 clocks
         {
+            destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 66: // SUM of Bj and Bk to Bi, 3 clocks
         {
+            destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 67: // DIFFERENCE of Aj and Bk to Bi, 3 clocks
         {
+            destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 70: // SUM of Aj and K to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 71: // SUM of Bj and K to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 72: // SUM of Xj and K to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 73: // SUM of Xj and Bk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 74: // SUM of Aj and Bk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 75: // DIFFERENCE of Aj and Bk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 76: // SUM of Bj and Bk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 77: // DIFFERENCE of Bj and Bk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Increment");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
     }
 }
