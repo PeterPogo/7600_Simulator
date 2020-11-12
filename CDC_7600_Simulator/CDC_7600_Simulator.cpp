@@ -208,10 +208,20 @@ void create_blank_table(vector<string> instructions_v)
         else { instruction_word.push_back("  "); }
     }
 
-    // Fill Semantics 1 & 2, increment unit, and registers used
+    // Fill Semantics 1 & 2, increment unit, and registers used, (Big ole switchcase)
     for (string inst : instructions_v)
     {
-        decode_instruction(inst);
+        unsigned long opcode = bitset<6>(inst.substr(0, 6)).to_ulong(); // Convert first 6 bits to Op-Code
+
+        // Send Op-code to the switchcase
+        if ((opcode >= 00) && (opcode <= 7)) { BRANCH(opcode, inst); }
+        else if ((opcode >= 10) && (opcode <= 17)) { BOOLEAN(opcode, inst); }
+        else if ((opcode >= 20) && (opcode <= 27) || (opcode == 43)) { SHIFT(opcode, inst); }
+        else if ((opcode >= 30) && (opcode <= 35)) { ADD(opcode, inst); }
+        else if ((opcode >= 36) && (opcode <= 37)) { LONG_ADD(opcode, inst); }
+        else if ((opcode >= 40) && (opcode <= 42)) { MULTIPLY(opcode, inst); }
+        else if ((opcode >= 44) && (opcode <= 47)) { DIVIDE(opcode, inst); }
+        else if ((opcode >= 50) && (opcode <= 77)) { INCREMENT(opcode, inst); }
     }
 }
 
@@ -422,24 +432,6 @@ void output_table(vector<string> inst_word, vector<string> inst_sem, vector<stri
     cout << "\n============================================================================================================================================================";
 }
 
-
-// Decode instruction for Semantics, Func unit(s), and registers used (Big ole switchcase)
-void decode_instruction(string inst)
-{
-    unsigned long opcode = bitset<6>(inst.substr(0, 6)).to_ulong(); // Convert first 6 bits to Op-Code
-
-    if      ((opcode >= 00) && (opcode <= 7)) { BRANCH(opcode, inst); }
-    else if ((opcode >= 10) && (opcode <= 17)) { BOOLEAN(opcode, inst); }
-    else if ((opcode >= 20) && (opcode <= 27) || (opcode == 43)) { SHIFT(opcode, inst); }
-    else if ((opcode >= 30) && (opcode <= 35)) { ADD(opcode, inst); }
-    else if ((opcode >= 36) && (opcode <= 37)) { LONG_ADD(opcode, inst); }
-    else if ((opcode >= 40) && (opcode <= 42)) { MULTIPLY(opcode, inst); }
-    else if ((opcode >= 44) && (opcode <= 47)) { DIVIDE(opcode, inst); }
-    else if ((opcode >= 50) && (opcode <= 77)) { INCREMENT(opcode, inst); }
-}
-
-
-
 // Functional units and functions
 #pragma region Functional Units and implementations
 
@@ -450,7 +442,10 @@ void BRANCH(int Opcode, string inst)
     {
         case 00: // Stop, 0 clocks
         {
-
+            //instruction_semantics;
+            //instruction_semantics_2;
+            //functional_unit_used;
+            //registers_used;
         }
         case 01: // RETURN JUMP to K, 14 clocks
         {
@@ -806,6 +801,17 @@ void INCREMENT(int Opcode, string inst)
 #pragma endregion
 
 #pragma endregion
+
+
+
+
+
+
+
+
+
+
+
 
 
 ///////////////////////////////////////////////
