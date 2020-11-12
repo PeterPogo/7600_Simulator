@@ -15,6 +15,7 @@
 #include <bitset>
 #include <iomanip> 
 #include <cmath>
+#include <algorithm>
 #include "CDC_7600_Simulator.h"
 using namespace std;
 
@@ -192,8 +193,7 @@ int main()
             break;
         }
 
-
-        // Create blank table and fill in vectors by decoding
+       // Create blank table and fill in vectors by decoding
        create_blank_table(instructions);
 
 
@@ -469,6 +469,30 @@ unsigned long to_octal(unsigned long binary_num)
         i *= 10;
     }
     return octalNumber;
+}
+
+string get_unique_registers(string dest, string op1, string op2)
+{
+    string result = "";
+    
+    vector<string> temp_vector;
+
+    if(dest != "")
+        temp_vector.push_back(dest);
+
+    if(op1 != "")
+        temp_vector.push_back(op1);
+
+    if (op2 != "")
+        temp_vector.push_back(op2);
+    
+    sort(temp_vector.begin(), temp_vector.end());
+    temp_vector.erase(unique(temp_vector.begin(), temp_vector.end()), temp_vector.end());
+
+    for (string reg : temp_vector)
+        result += reg + " ";
+
+    return result;
 }
 
 // Functional units and functions
@@ -864,7 +888,8 @@ void SHIFT(int Opcode, string inst)
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
-            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
+
+            registers_used.push_back(get_unique_registers(destination,operand1,operand2));
         }
         case 25: // ROUND AND NORMALIZE Xk in Xi and Bj, 4 clocks
         {
@@ -884,7 +909,7 @@ void SHIFT(int Opcode, string inst)
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
-            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 26: // UNPACK Xk to Xi and Bj, 3 clocks
         {
@@ -904,7 +929,7 @@ void SHIFT(int Opcode, string inst)
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
-            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 27: // PACK Xi from Xk and Bj, 3 clocks
         {
@@ -924,7 +949,7 @@ void SHIFT(int Opcode, string inst)
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
-            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 43: // FORM jk MASK in Xi, 3 clocks
         {
@@ -952,31 +977,139 @@ void SHIFT(int Opcode, string inst)
 #pragma region ADD Unit
 void ADD(int Opcode, string inst)
 {
+    string semantic_string = "";
+    string register_string = "";
+    string destination = "";
+    string operand1 = "";
+    string operand2 = "";
+
     switch (Opcode)
     {
         case 30: // FLOATING SUM of Xj and Xk to Xi, 4 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Add");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
-        case 31: // FLOATING DIFFERENCE of XK and Xk to Xi, 4 clocks
+        case 31: // FLOATING DIFFERENCE of Xj and Xk to Xi, 4 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Add");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 32: // FLOATING DP SUM of Xj and Xk to Xi, 4 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "DP " + destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Add");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 33: // FLOATING DP DIFFERENCE of Xj and Xk to Xi, 4 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "DP " + destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Add");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 34: // ROUND FLOATING SUM of Xi and Xk to Xi, 4 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "ROUND " + destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Add");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 35: // ROUND FLOATNG DIFFERENCE of Xj and XK to Xi, 4 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "ROUND " + destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Add");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
     }
 }
@@ -985,15 +1118,55 @@ void ADD(int Opcode, string inst)
 #pragma region LONG ADD Unit
 void LONG_ADD(int Opcode, string inst)
 {
+    string semantic_string = "";
+    string register_string = "";
+    string destination = "";
+    string operand1 = "";
+    string operand2 = "";
+
     switch (Opcode)
     {
         case 36: // INTEGER SUM of Xj and Xk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Long-Add");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 37: // INTEGER DIFFERENCE of Xj and Xk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Long-Add");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
     }
 }
