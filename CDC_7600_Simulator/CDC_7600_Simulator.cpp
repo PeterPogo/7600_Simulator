@@ -641,7 +641,7 @@ void BOOLEAN(int Opcode, string inst)
             {
                 destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
                 operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
 
                 semantic_string = destination + " = " + operand1 + " & " + operand2;
             }
@@ -661,7 +661,7 @@ void BOOLEAN(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " + " + operand2;
@@ -682,7 +682,7 @@ void BOOLEAN(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " + !" + operand2;
@@ -702,7 +702,7 @@ void BOOLEAN(int Opcode, string inst)
             }
             else
             {
-                operand1 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand1 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = COMP. " + operand1;
@@ -723,7 +723,7 @@ void BOOLEAN(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " & COMP. X" + operand2;
@@ -744,7 +744,7 @@ void BOOLEAN(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " + COMP. X" + operand2;
@@ -765,7 +765,7 @@ void BOOLEAN(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " &! COMP. X" + operand2;
@@ -801,7 +801,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " SHIFT LEFT " + operand2;
@@ -821,7 +821,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " SHIFT RIGHT " + operand2;
@@ -841,7 +841,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " SHIFT NOM. LEFT " + operand2;
@@ -861,7 +861,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " SHIFT NOM. RIGHT " + operand2;
@@ -881,7 +881,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "NORM. " + operand2 + " in " + destination + " and " + operand1;
@@ -902,7 +902,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "Round and NORM. " + operand2 + " in " + destination + " and " + operand1;
@@ -922,7 +922,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "UNPACK " + operand2 + " in " + destination + " and " + operand1;
@@ -942,7 +942,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "PACK " + destination + " from " + operand2 + " and " + operand1;
@@ -961,7 +961,7 @@ void SHIFT(int Opcode, string inst)
             }
             else
             {
-                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "FORM " + operand2 + " MASK in " + destination;
@@ -996,13 +996,13 @@ void ADD(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " + " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Add");
+            functional_unit_used.push_back("FL Add");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
@@ -1017,13 +1017,13 @@ void ADD(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " - " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Add");
+            functional_unit_used.push_back("FL Add");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
@@ -1038,13 +1038,13 @@ void ADD(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "DP " + destination + " = " + operand1 + " + " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Add");
+            functional_unit_used.push_back("FL Add");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
@@ -1059,13 +1059,13 @@ void ADD(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "DP " + destination + " = " + operand1 + " - " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Add");
+            functional_unit_used.push_back("FL Add");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
@@ -1080,13 +1080,13 @@ void ADD(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "ROUND " + destination + " = " + operand1 + " + " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Add");
+            functional_unit_used.push_back("FL Add");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
@@ -1101,13 +1101,13 @@ void ADD(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "ROUND " + destination + " = " + operand1 + " - " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Add");
+            functional_unit_used.push_back("FL Add");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
@@ -1137,7 +1137,7 @@ void LONG_ADD(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " + " + operand2;
@@ -1158,7 +1158,7 @@ void LONG_ADD(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " - " + operand2;
@@ -1194,7 +1194,7 @@ void DIVIDE(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = destination + " = " + operand1 + " / " + operand2;
@@ -1215,7 +1215,7 @@ void DIVIDE(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "Round " + destination + " = " + operand1 + " / " + operand2;
@@ -1245,7 +1245,7 @@ void DIVIDE(int Opcode, string inst)
             }
             else
             {
-                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
             semantic_string = "SUM 1's in " + operand2 + " to " + destination;
@@ -1262,19 +1262,76 @@ void DIVIDE(int Opcode, string inst)
 #pragma region MULTIPLY Unit
 void MULTIPLY(int Opcode, string inst)
 {
+    string semantic_string = "";
+    string register_string = "";
+    string destination = "";
+    string operand1 = "";
+    string operand2 = "";
+
     switch (Opcode)
     {
         case 40: // FLOATING PRODUCT of Xj and Xk to Xi, 10 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " * " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("FL Multiply");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 41: // ROUND FLOATING PRODUCT of Xj and Xk to Xi, 10 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = "Round " + destination + " = " + operand1 + " * " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("FL Multiply");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
         case 42: // FLOATING DP PRODUCT of Xj and Xk to Xi, 10 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = "DP " + destination + " = " + operand1 + " * " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("FL Multiply");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
         }
     }
 }
@@ -1283,6 +1340,12 @@ void MULTIPLY(int Opcode, string inst)
 #pragma region INCREMENT Unit
 void INCREMENT(int Opcode, string inst)
 {
+    string semantic_string = "";
+    string register_string = "";
+    string destination = "";
+    string operand1 = "";
+    string operand2 = "";
+
     switch (Opcode)
     {
         case 50: // SUM  of Aj and K to Ai, 3 clocks
