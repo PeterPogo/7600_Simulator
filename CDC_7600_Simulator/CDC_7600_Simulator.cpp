@@ -9,6 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <iomanip> 
@@ -85,6 +86,7 @@ public:
     // Resolve conflicts
 };
 
+
 #pragma region Operator Overloading
 // Overload << operator for Scoreboard Class
 ostream& operator<<(ostream& os, const Scoreboard& sb)
@@ -108,6 +110,23 @@ ostream& operator<<(ostream& os, const Scoreboard& sb)
 
 #pragma endregion
 
+// Global declaration of table vectors
+#pragma region Table_Rows
+// These tables are purely for storing and outputing data, scoreboard needs to handle the logic
+vector<string> instruction_word;
+vector<string> instruction_semantics;
+vector<string> instruction_semantics_2;
+vector<string> instruction_length;
+vector<int> issue;
+vector<int> start;
+vector<int> result;
+vector<int> unit_ready;
+vector<string> fetch;
+vector<string> store;
+vector<string> functional_unit_used;
+vector<string> registers_used;
+#pragma endregion
+
 int main()
 {
     // Test Data to run
@@ -117,18 +136,41 @@ int main()
 
     // Start simulation by asking for input
     int test_data_choice;
+
     bool continue_sim = true;
     char continue_response;
+
+    int inst_count = 0;
+    string instruction;
+    vector<string> instructions;
+
 
     cout << "--- CDC 7600 Simulator ---";
     while (continue_sim)
     {
-        cout <<"\n\nChose an equation to simulate:" << "\n1: Y = AX^2 + BX" << "\n2: Y = AX^2 + BX + C" << "\n3: Y = AX^2 + BX (X & Y = vectors)\n\n";
-        cin >> test_data_choice;
+        //cout <<"\n\nChose an equation to simulate:" << "\n1: Y = AX^2 + BX" << "\n2: Y = AX^2 + BX + C" << "\n3: Y = AX^2 + BX (X & Y = vectors)\n\n";
+        //cin >> test_data_choice;
+        
+        // Read in instructions from file
+        cout << "\n\nReading instructions from file (binary).....\n\n";
 
-        simulate_CDC7600(test_data_choice);
+        ifstream input_file("instructions.txt");
+        if (input_file.is_open())
+        {
+            while ( getline(input_file, instruction))
+            {
+                instructions.push_back(instruction);
+                cout << "Instruction " << inst_count << ": " << instruction << '\n';
+                inst_count++;
+            }
+            input_file.close();
+        }
+        else { cout << "\nUnable to open file"; }
 
-        cout << "\n\nSimulation complete, would you like to simulate another test data? y/n:  ";
+       // Create_Blank_Table(instructions);
+       // simulate_CDC7600(test_data_choice);
+
+        cout << "\n\nSimulation complete, would you like to simulate another set of instructions? y/n:  ";
         cin >> continue_response;
         if (continue_response == 'n') { continue_sim = false; }
     }
@@ -139,170 +181,157 @@ int main()
 // Simluation of CDC7600 Processor
 void simulate_CDC7600(int test_data_eq)
 {
-    // These tables are purely for storing and outputing data, scoreboard needs to handle the logic
-    #pragma region Table_Rows
-    vector<string> instruction_word;
-    vector<string> instruction_semantics;
-    vector<string> instruction_semantics_2;
-    vector<string> instruction_length;
-    vector<int> issue;
-    vector<int> start;
-    vector<int> result;
-    vector<int> unit_ready;
-    vector<string> fetch;
-    vector<string> store;
-    vector<string> functional_unit_used;
-    vector<string> registers_used;
-    #pragma endregion
+    #pragma region Old idea for test data
 
-    #pragma region Construct base table for Eq1 Y = AX^2 + BX
+#pragma region Construct base table for Eq1 Y = AX^2 + BX
 
-    #pragma endregion
+#pragma endregion
 
-    #pragma region Construct base table for Eq2 Y = AX^2 + BX + C
-    instruction_word.push_back("N1");
-    instruction_word.push_back("  ");
-    instruction_word.push_back("N2");
-    instruction_word.push_back("  ");
-    instruction_word.push_back("  ");
-    instruction_word.push_back("N3");
-    instruction_word.push_back("  ");
-    instruction_word.push_back("  ");
-    instruction_word.push_back("N4");
-    instruction_word.push_back("  ");
+#pragma region Construct base table for Eq2 Y = AX^2 + BX + C
+    //instruction_word.push_back("N1");
+    //instruction_word.push_back("  ");
+    //instruction_word.push_back("N2");
+    //instruction_word.push_back("  ");
+    //instruction_word.push_back("  ");
+    //instruction_word.push_back("N3");
+    //instruction_word.push_back("  ");
+    //instruction_word.push_back("  ");
+    //instruction_word.push_back("N4");
+    //instruction_word.push_back("  ");
 
-    instruction_semantics.push_back("A1 = A1 + K1");
-    instruction_semantics.push_back("A2 = A2 + K2");
-    instruction_semantics.push_back("X0 = X1 * X1");
-    instruction_semantics.push_back("X6 = X0 * X2");
-    instruction_semantics.push_back("A3 = A3 + K3");
-    instruction_semantics.push_back("A4 = A4 + K4");
-    instruction_semantics.push_back("X3 = X3 * X1");
-    instruction_semantics.push_back("X5 = X6 + X3");
-    instruction_semantics.push_back("X7 = X5 + X4");
-    instruction_semantics.push_back("A7 = A7 + K5");
+    //instruction_semantics.push_back("A1 = A1 + K1");
+    //instruction_semantics.push_back("A2 = A2 + K2");
+    //instruction_semantics.push_back("X0 = X1 * X1");
+    //instruction_semantics.push_back("X6 = X0 * X2");
+    //instruction_semantics.push_back("A3 = A3 + K3");
+    //instruction_semantics.push_back("A4 = A4 + K4");
+    //instruction_semantics.push_back("X3 = X3 * X1");
+    //instruction_semantics.push_back("X5 = X6 + X3");
+    //instruction_semantics.push_back("X7 = X5 + X4");
+    //instruction_semantics.push_back("A7 = A7 + K5");
 
-    instruction_semantics_2.push_back("FETCH X");
-    instruction_semantics_2.push_back("FETCH A");
-    instruction_semantics_2.push_back("FORM X^2");
-    instruction_semantics_2.push_back("FORM AX^2");
-    instruction_semantics_2.push_back("FETCH B");
-    instruction_semantics_2.push_back("FETCH C");
-    instruction_semantics_2.push_back("FORM BX");
-    instruction_semantics_2.push_back("FORM AX^2 + BX");
-    instruction_semantics_2.push_back("FORM Y");
-    instruction_semantics_2.push_back("STORE Y");
+    //instruction_semantics_2.push_back("FETCH X");
+    //instruction_semantics_2.push_back("FETCH A");
+    //instruction_semantics_2.push_back("FORM X^2");
+    //instruction_semantics_2.push_back("FORM AX^2");
+    //instruction_semantics_2.push_back("FETCH B");
+    //instruction_semantics_2.push_back("FETCH C");
+    //instruction_semantics_2.push_back("FORM BX");
+    //instruction_semantics_2.push_back("FORM AX^2 + BX");
+    //instruction_semantics_2.push_back("FORM Y");
+    //instruction_semantics_2.push_back("STORE Y");
 
-    //////////////////////////////////////////// N1
-    instruction_length.push_back("Long");
-    instruction_length.push_back("Long");
-    //////////////////////////////////////////// N2
-    instruction_length.push_back("Short");
-    instruction_length.push_back("Short");
-    instruction_length.push_back("Long");
-    /////////////////////////////////////////// N3
-    instruction_length.push_back("Long");
-    instruction_length.push_back("Short");
-    instruction_length.push_back("Short");
-    ////////////////////////////////////////// N4
-    instruction_length.push_back("Short");
-    instruction_length.push_back("Long");
+    ////////////////////////////////////////////// N1
+    //instruction_length.push_back("Long");
+    //instruction_length.push_back("Long");
+    ////////////////////////////////////////////// N2
+    //instruction_length.push_back("Short");
+    //instruction_length.push_back("Short");
+    //instruction_length.push_back("Long");
+    ///////////////////////////////////////////// N3
+    //instruction_length.push_back("Long");
+    //instruction_length.push_back("Short");
+    //instruction_length.push_back("Short");
+    //////////////////////////////////////////// N4
+    //instruction_length.push_back("Short");
+    //instruction_length.push_back("Long");
 
-    // Fake info for 2 rows
-    issue.push_back(1);
-    issue.push_back(3);
-    issue.push_back(7);
-    issue.push_back(9);
-    issue.push_back(10);
-    issue.push_back(13);
-    issue.push_back(14);
-    issue.push_back(16);
-    issue.push_back(19);
-    issue.push_back(22);
+    //// Fake info for 2 rows
+    //issue.push_back(1);
+    //issue.push_back(3);
+    //issue.push_back(7);
+    //issue.push_back(9);
+    //issue.push_back(10);
+    //issue.push_back(13);
+    //issue.push_back(14);
+    //issue.push_back(16);
+    //issue.push_back(19);
+    //issue.push_back(22);
 
-    start.push_back(1);
-    start.push_back(3);
-    start.push_back(7);
-    start.push_back(12);
-    start.push_back(10);
-    start.push_back(17);
-    start.push_back(21);
-    start.push_back(24);
-    start.push_back(23);
-    start.push_back(27);
+    //start.push_back(1);
+    //start.push_back(3);
+    //start.push_back(7);
+    //start.push_back(12);
+    //start.push_back(10);
+    //start.push_back(17);
+    //start.push_back(21);
+    //start.push_back(24);
+    //start.push_back(23);
+    //start.push_back(27);
 
 
-    result.push_back(3);
-    result.push_back(5);
-    result.push_back(12);
-    result.push_back(17);
-    result.push_back(12);
-    result.push_back(21);
-    result.push_back(23);
-    result.push_back(25);
-    result.push_back(28);
-    result.push_back(32);
+    //result.push_back(3);
+    //result.push_back(5);
+    //result.push_back(12);
+    //result.push_back(17);
+    //result.push_back(12);
+    //result.push_back(21);
+    //result.push_back(23);
+    //result.push_back(25);
+    //result.push_back(28);
+    //result.push_back(32);
 
-    unit_ready.push_back(2);
-    unit_ready.push_back(4);
-    unit_ready.push_back(9);
-    unit_ready.push_back(14);
-    unit_ready.push_back(11);
-    unit_ready.push_back(18);
-    unit_ready.push_back(22);
-    unit_ready.push_back(24);
-    unit_ready.push_back(26);
-    unit_ready.push_back(28);
+    //unit_ready.push_back(2);
+    //unit_ready.push_back(4);
+    //unit_ready.push_back(9);
+    //unit_ready.push_back(14);
+    //unit_ready.push_back(11);
+    //unit_ready.push_back(18);
+    //unit_ready.push_back(22);
+    //unit_ready.push_back(24);
+    //unit_ready.push_back(26);
+    //unit_ready.push_back(28);
 
-    fetch.push_back(to_string(9));
-    fetch.push_back(to_string(11));
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(to_string(16));
-    fetch.push_back(to_string(18));
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(" ");
+    //fetch.push_back(to_string(9));
+    //fetch.push_back(to_string(11));
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(to_string(16));
+    //fetch.push_back(to_string(18));
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
 
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back("27");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back("27");
 
-    functional_unit_used.push_back("Increment");
-    functional_unit_used.push_back("Increment");
-    functional_unit_used.push_back("FL multiply, Normalize");
-    functional_unit_used.push_back("FL multiply, Normalize");
-    functional_unit_used.push_back("Increment");
-    functional_unit_used.push_back("Increment");
-    functional_unit_used.push_back("FL multiply, Normalize");
-    functional_unit_used.push_back("FL add, Normalize");
-    functional_unit_used.push_back("FL add, Normalize");
-    functional_unit_used.push_back("Increment");
+    //functional_unit_used.push_back("Increment");
+    //functional_unit_used.push_back("Increment");
+    //functional_unit_used.push_back("FL multiply, Normalize");
+    //functional_unit_used.push_back("FL multiply, Normalize");
+    //functional_unit_used.push_back("Increment");
+    //functional_unit_used.push_back("Increment");
+    //functional_unit_used.push_back("FL multiply, Normalize");
+    //functional_unit_used.push_back("FL add, Normalize");
+    //functional_unit_used.push_back("FL add, Normalize");
+    //functional_unit_used.push_back("Increment");
 
 
-    registers_used.push_back("A1, X1");
-    registers_used.push_back("A2, X2");
-    registers_used.push_back("X0, X1");
-    registers_used.push_back("X0, X2, X6");
-    registers_used.push_back("A3, X3");
-    registers_used.push_back("A4, X4");
-    registers_used.push_back("X1, X3");
-    registers_used.push_back("X3, X5, X6");
-    registers_used.push_back("X4, X5, X7");
-    registers_used.push_back("A7, X5, X7");
-    #pragma endregion
+    //registers_used.push_back("A1, X1");
+    //registers_used.push_back("A2, X2");
+    //registers_used.push_back("X0, X1");
+    //registers_used.push_back("X0, X2, X6");
+    //registers_used.push_back("A3, X3");
+    //registers_used.push_back("A4, X4");
+    //registers_used.push_back("X1, X3");
+    //registers_used.push_back("X3, X5, X6");
+    //registers_used.push_back("X4, X5, X7");
+    //registers_used.push_back("A7, X5, X7");
+#pragma endregion
 
-    #pragma region Construct base table for Eq3  Y = AX^2 + BX (X & Y = vectors)
+#pragma region Construct base table for Eq3  Y = AX^2 + BX (X & Y = vectors)
 
-    #pragma endregion
+#pragma endregion
+#pragma endregion
 
     // Processor Declarations
 

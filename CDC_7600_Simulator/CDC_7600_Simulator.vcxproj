@@ -144,6 +144,9 @@
   <ItemGroup>
     <ClInclude Include="CDC_7600_Simulator.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="instructions.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
