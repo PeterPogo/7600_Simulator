@@ -573,20 +573,16 @@ void BRANCH(int Opcode, string inst)
 #pragma region Boolean Unit
 void BOOLEAN(int Opcode, string inst)
 {
-    string semantic_string;
-    string register_string;
-    string destination;
-    string operand1;
-    string operand2;
+    string semantic_string = "";
+    string register_string = "";
+    string destination = "";
+    string operand1 = "";
+    string operand2 = "";
 
     switch (Opcode)
     {
         case 10: // TRANSMIT Xj to Xi, 3 clocks
         {
-            semantic_string = "";
-            destination = "";
-            operand1 = "";
-
             if (inst.length() > 15)
             {
                 destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -609,11 +605,6 @@ void BOOLEAN(int Opcode, string inst)
         }
         case 11: // LOGICAL PRODUCT of Xj and Xk to Xi, 3 clocks
         {
-            semantic_string = "";
-            destination = "";
-            operand1 = "";
-            operand2 = "";
-
             if (inst.length() > 15)
             {
                 destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -634,31 +625,131 @@ void BOOLEAN(int Opcode, string inst)
             functional_unit_used.push_back("Boolean");
 
             registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
-
         }
         case 12: // LOGICAL SUM of Xj and Xk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Boolean");
+
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
         }
         case 13: // LOGICAL DIFFERENCE of Xj and Xk to Xi, 3 clocks
         {
-    
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + !" + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Boolean");
+
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
         }
         case 14: // TRANSMIT Xk COMP. to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
 
-        }
-        case 15: // LOGICAL PRODUCT of XJ and Xk COMP to Xi, 3 clocks
-        {
+            if (inst.length() > 15)
+            {
+                operand1 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand1 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
 
+            semantic_string = destination + " = COMP. " + operand1;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Boolean");
+
+            registers_used.push_back(destination + ", " + operand1);
         }
-        case 16: // LOGICAL SUM of XJ and Xk COMP ti Xi, 3 clocks
+        case 15: // LOGICAL PRODUCT of Xj and Xk COMP to Xi, 3 clocks
         {
-    
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " & COMP. X" + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Boolean");
+
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
+        }
+        case 16: // LOGICAL SUM of Xj and Xk COMP to Xi, 3 clocks
+        {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " + COMP. X" + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Boolean");
+
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
         }
         case 17: // LOGICAL DIFFERENCE of Xj and Xk COMP to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " &! COMP. X" + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Boolean");
+
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
         }
     }
 }
@@ -667,43 +758,192 @@ void BOOLEAN(int Opcode, string inst)
 #pragma region Shift Unit
 void SHIFT(int Opcode, string inst)
 {
+    string semantic_string = "";
+    string register_string = "";
+    string destination = "";
+    string operand1 = "";
+    string operand2 = "";
+
     switch (Opcode)
     {
         case 20: // Shift Xi LEFT jk places, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = destination;
 
+            if (inst.length() > 15)
+            {
+                operand2 = "j" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " SHIFT LEFT " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination);
         }
         case 21: // SHIFT Xi RIGHT jk places, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = destination;
 
+            if (inst.length() > 15)
+            {
+                operand2 = "j" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " SHIFT RIGHT " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination);
         }
         case 22: // SHIFT Xi NOMINALLY LEFT Bj places, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = destination;
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " SHIFT NOM. LEFT " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination + ", " + operand2);
         }
         case 23: // SHIFT Xi, NOMINALLY RIGHT Bj places, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = destination;
 
+            if (inst.length() > 15)
+            {
+                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = destination + " = " + operand1 + " SHIFT NOM. RIGHT " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination + ", " + operand2);
         }
         case 24: // NORMALIZE Xk in Xi and Bj, 4 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());;
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "NORM. " + operand2 + " in " + destination + " and " + operand1;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
         }
         case 25: // ROUND AND NORMALIZE Xk in Xi and Bj, 4 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());;
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "Round and NORM. " + operand2 + " in " + destination + " and " + operand1;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
         }
         case 26: // UNPACK Xk to Xi and Bj, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());;
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "UNPACK " + operand2 + " in " + destination + " and " + operand1;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
         }
         case 27: // PACK Xi from Xk and Bj, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());;
 
+            if (inst.length() > 15)
+            {
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "X" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "PACK " + destination + " from " + operand2 + " and " + operand1;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination + ", " + operand1 + ", " + operand2);
         }
         case 43: // FORM jk MASK in Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
 
+            if (inst.length() > 15)
+            {
+                operand2 = "j" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 30)).to_ulong());
+            }
+
+            semantic_string = "FORM " + operand2 + " MASK in " + destination;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Shift");
+            registers_used.push_back(destination);
         }
     }
 }
