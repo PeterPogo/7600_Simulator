@@ -212,7 +212,7 @@ void create_blank_table(vector<string> instructions_v)
     //Fill lengths (short/long)
     for (string inst : instructions_v)
     {
-        if (inst.length() <= 15) { instruction_length.push_back("Long"); }
+        if (inst.length() > 15) { instruction_length.push_back("Long"); }
         else { instruction_length.push_back("Short"); }
     }
 
@@ -577,14 +577,33 @@ string get_unique_registers(string dest, string op1, string op2)
     
     vector<string> temp_vector;
 
-    if(dest != "")
+    if (dest != "")
         temp_vector.push_back(dest);
 
-    if(op1 != "")
+    if (op1 != "" && op1[0] != 'K')
+    {
         temp_vector.push_back(op1);
 
-    if (op2 != "")
+        if(op1[0] == 'A')
+        {
+            string extra_operand = "X";
+            extra_operand += op1[1];
+            temp_vector.push_back(extra_operand);
+        }
+    }
+
+
+    if (op2 != "" && op2[0] != 'K')
+    {
         temp_vector.push_back(op2);
+
+        if (op2[0] == 'A')
+        {
+            string extra_operand = "X";
+            extra_operand += op2[1];
+            temp_vector.push_back(extra_operand);
+        }
+    }
     
     sort(temp_vector.begin(), temp_vector.end());
     temp_vector.erase(unique(temp_vector.begin(), temp_vector.end()), temp_vector.end());
@@ -932,6 +951,7 @@ void SHIFT(int Opcode, string inst)
 
             break;
         }
+
         case 21: // SHIFT Xi RIGHT jk places, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -954,6 +974,7 @@ void SHIFT(int Opcode, string inst)
 
             break;
         }
+
         case 22: // SHIFT Xi NOMINALLY LEFT Bj places, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -976,6 +997,7 @@ void SHIFT(int Opcode, string inst)
 
             break;
         }
+
         case 23: // SHIFT Xi, NOMINALLY RIGHT Bj places, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -998,6 +1020,7 @@ void SHIFT(int Opcode, string inst)
 
             break;
         }
+
         case 24: // NORMALIZE Xk in Xi and Bj, 4 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1016,11 +1039,11 @@ void SHIFT(int Opcode, string inst)
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
-
             registers_used.push_back(get_unique_registers(destination,operand1,operand2));
 
             break;
         }
+
         case 25: // ROUND AND NORMALIZE Xk in Xi and Bj, 4 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1043,6 +1066,7 @@ void SHIFT(int Opcode, string inst)
 
             break;
         }
+
         case 26: // UNPACK Xk to Xi and Bj, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1065,6 +1089,7 @@ void SHIFT(int Opcode, string inst)
 
             break;
         }
+
         case 27: // PACK Xi from Xk and Bj, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1087,6 +1112,7 @@ void SHIFT(int Opcode, string inst)
 
             break;
         }
+
         case 43: // FORM jk MASK in Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1107,6 +1133,13 @@ void SHIFT(int Opcode, string inst)
             registers_used.push_back(destination);
 
             break;
+        }
+
+        default: // If invalid opcode
+        {
+            instruction_semantics.push_back("Invalid Opcode");
+            functional_unit_used.push_back("Invalid Opcode");
+            registers_used.push_back("Invalid Opcode");
         }
     }
 }
@@ -1146,6 +1179,7 @@ void ADD(int Opcode, string inst)
 
             break;
         }
+
         case 31: // FLOATING DIFFERENCE of Xj and Xk to Xi, 4 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1169,6 +1203,7 @@ void ADD(int Opcode, string inst)
 
             break;
         }
+
         case 32: // FLOATING DP SUM of Xj and Xk to Xi, 4 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1192,6 +1227,7 @@ void ADD(int Opcode, string inst)
 
             break;
         }
+
         case 33: // FLOATING DP DIFFERENCE of Xj and Xk to Xi, 4 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1215,6 +1251,7 @@ void ADD(int Opcode, string inst)
 
             break;
         }
+
         case 34: // ROUND FLOATING SUM of Xi and Xk to Xi, 4 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1238,6 +1275,7 @@ void ADD(int Opcode, string inst)
 
             break;
         }
+
         case 35: // ROUND FLOATNG DIFFERENCE of Xj and XK to Xi, 4 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1260,6 +1298,13 @@ void ADD(int Opcode, string inst)
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
+        }
+
+        default: // If invalid opcode
+        {
+            instruction_semantics.push_back("Invalid Opcode");
+            functional_unit_used.push_back("Invalid Opcode");
+            registers_used.push_back("Invalid Opcode");
         }
     }
 }
@@ -1293,12 +1338,13 @@ void LONG_ADD(int Opcode, string inst)
             semantic_string = destination + " = " + operand1 + " + " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Long-Add");
+            functional_unit_used.push_back("Long-Add, Normalize");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
         }
+
         case 37: // INTEGER DIFFERENCE of Xj and Xk to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1316,11 +1362,18 @@ void LONG_ADD(int Opcode, string inst)
             semantic_string = destination + " = " + operand1 + " - " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Long-Add");
+            functional_unit_used.push_back("Long-Add, Normalilze");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
+        }
+
+        default: // If invalid opcode
+        {
+            instruction_semantics.push_back("Invalid Opcode");
+            functional_unit_used.push_back("Invalid Opcode");
+            registers_used.push_back("Invalid Opcode");
         }
     }
 }
@@ -1360,6 +1413,7 @@ void DIVIDE(int Opcode, string inst)
 
             break;
         }
+
         case 45: // ROUND FLOATING DIVIDE  Xj by Xk to Xi, 29 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1383,6 +1437,7 @@ void DIVIDE(int Opcode, string inst)
 
             break;
         }
+
         case 46: // PASS, 0 clocks
         {
             semantic_string = "Pass";
@@ -1392,6 +1447,7 @@ void DIVIDE(int Opcode, string inst)
 
             registers_used.push_back(" ");
         }
+
         case 47: // SUM of 1's in Xk to Xi, 8 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1414,6 +1470,13 @@ void DIVIDE(int Opcode, string inst)
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
+        }
+
+        default: // If invalid opcode
+        {
+            instruction_semantics.push_back("Invalid Opcode");
+            functional_unit_used.push_back("Invalid Opcode");
+            registers_used.push_back("Invalid Opcode");
         }
     }
 }
@@ -1453,6 +1516,7 @@ void MULTIPLY(int Opcode, string inst)
 
             break;
         }
+
         case 41: // ROUND FLOATING PRODUCT of Xj and Xk to Xi, 10 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1476,6 +1540,7 @@ void MULTIPLY(int Opcode, string inst)
 
             break;
         }
+
         case 42: // FLOATING DP PRODUCT of Xj and Xk to Xi, 10 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1498,6 +1563,13 @@ void MULTIPLY(int Opcode, string inst)
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
+        }
+
+        default: // If invalid opcode
+        {
+            instruction_semantics.push_back("Invalid Opcode");
+            functional_unit_used.push_back("Invalid Opcode");
+            registers_used.push_back("Invalid Opcode");
         }
     }
 }
@@ -1537,6 +1609,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 51: // SUM of Bj and K to Ai, 3 clocks
         {
             destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1560,6 +1633,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 52: // SUM of Xj and K to Ai, 3 clocks
         {
             destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1583,6 +1657,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 53: // SUM of Xj and Bk to Ai, 3 clocks
         {
             destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1606,6 +1681,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 54: // SUM of Aj and Bk to Ai, 3 clocks
         {
             destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1629,6 +1705,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 55: // DIFFERENCE of Aj and Bk to Ai, 3 clocks
         {
             destination = "A" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1652,6 +1729,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 56: // SUM of Bj and Bk to Zi, 3 clocks
         {
             destination = "Z" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1675,6 +1753,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 57: // DIFFERENCE of Bj and Bk to Zi, 3 clocks
         {
             destination = "Z" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1698,6 +1777,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 60: // SUM of Aj and K to Bi, 3 clocks
         {
             destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1721,6 +1801,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 61: // SUM of Bj and K to Bi, 3 clocks
         {
             destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1744,6 +1825,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 62: // SUM of Xj and K to Bi, 3 clocks
         {
             destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1767,6 +1849,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 63: // SUM of Xj and Bk to Bi, 3 clocks
         {
             destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1790,6 +1873,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 64: // SUM of Aj and Bk to Bi, 3 clocks
         {
             destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1813,6 +1897,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 65: // DIFFERENCE of Aj and Bk to Bi, 3 clocks
         {
             destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1836,6 +1921,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 66: // SUM of Bj and Bk to Bi, 3 clocks
         {
             destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1859,10 +1945,11 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
-        case 67: // DIFFERENCE of Aj and Bk to Bi, 3 clocks
+
+        case 67: // DIFFERENCE of Bj and Bk to Bi, 3 clocks
         {
             destination = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-            operand1 = "A" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
             if (inst.length() <= 15)
             {
@@ -1882,6 +1969,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 70: // SUM of Aj and K to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1905,6 +1993,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 71: // SUM of Bj and K to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1928,6 +2017,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 72: // SUM of Xj and K to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1951,6 +2041,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 73: // SUM of Xj and Bk to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1974,6 +2065,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 74: // SUM of Aj and Bk to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -1997,6 +2089,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 75: // DIFFERENCE of Aj and Bk to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -2020,6 +2113,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 76: // SUM of Bj and Bk to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -2043,6 +2137,7 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
         case 77: // DIFFERENCE of Bj and Bk to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -2066,9 +2161,20 @@ void INCREMENT(int Opcode, string inst)
 
             break;
         }
+
+        default: // If invalid opcode
+        {
+            instruction_semantics.push_back("Invalid Opcode");
+            functional_unit_used.push_back("Invalid Opcode");
+            registers_used.push_back("Invalid Opcode");
+        }
     }
 }
 #pragma endregion
+
+
+
+
 
 #pragma region NORMALIZE Unit
 void NORMALIZE(int Opcode, string inst)
