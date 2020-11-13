@@ -156,7 +156,7 @@ int main()
         //cin >> test_data_choice;
         
         // Read in instructions from file
-        cout << "\n\nReading instructions from file (binary).....\n\n";
+        cout << "\n\nReading instructions from files (binary).....\n\n";
 
         // Read in semantics
         ifstream sem_input_file("semantics3.txt");
@@ -731,17 +731,9 @@ void BOOLEAN(int Opcode, string inst)
     {
         case 10: // TRANSMIT Xj to Xi, 3 clocks
         {
-
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
             operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
-            if (inst.length() <= 15)
-            {
-                destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-            }
-            else
-            {
-                destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-            }
             semantic_string = "TRANSMIT " + operand1 + " to " + destination;
             instruction_semantics.push_back(semantic_string);
 
@@ -751,31 +743,31 @@ void BOOLEAN(int Opcode, string inst)
 
             break;
         }
+
         case 11: // LOGICAL PRODUCT of Xj and Xk to Xi, 3 clocks
         {
+            destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
             if (inst.length() <= 15)
             {
-                destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-                operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
-                operand2= "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
-
-                semantic_string = destination + " = " + operand1 + " & " +  operand2;
+                operand2 = "X" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
             }
             else
             {
-                destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-                operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
-
-                semantic_string = destination + " = " + operand1 + " & " + operand2;
             }
+
+            semantic_string = destination + " = " + operand1 + " && " + operand2;
             instruction_semantics.push_back(semantic_string);
+
             functional_unit_used.push_back("Boolean");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
         }
+
         case 12: // LOGICAL SUM of Xj and Xk to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -799,6 +791,7 @@ void BOOLEAN(int Opcode, string inst)
 
             break;
         }
+
         case 13: // LOGICAL DIFFERENCE of Xj and Xk to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -822,6 +815,7 @@ void BOOLEAN(int Opcode, string inst)
 
             break;
         }
+
         case 14: // TRANSMIT Xk COMP. to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -844,6 +838,7 @@ void BOOLEAN(int Opcode, string inst)
 
             break;
         }
+
         case 15: // LOGICAL PRODUCT of Xj and Xk COMP to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -858,7 +853,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = " + operand1 + " & COMP. X" + operand2;
+            semantic_string = destination + " = " + operand1 + " && COMP. " + operand2;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -867,6 +862,7 @@ void BOOLEAN(int Opcode, string inst)
 
             break;
         }
+
         case 16: // LOGICAL SUM of Xj and Xk COMP to Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
@@ -881,7 +877,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = " + operand1 + " + COMP. X" + operand2;
+            semantic_string = destination + " = " + operand1 + " + COMP. " + operand2;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -890,7 +886,8 @@ void BOOLEAN(int Opcode, string inst)
 
             break;
         }
-        case 17: // LOGICAL DIFFERENCE of Xj and Xk COMP to Xi, 3 clocks
+
+        case 17: // LOGICAL DIFFERENCE of Xj and Xk COMP to Xi, 3 clocks 
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
             operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
@@ -904,7 +901,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = " + operand1 + " &! COMP. X" + operand2;
+            semantic_string = destination + " = " + operand1 + " + !COMP. " + operand2;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -913,9 +910,16 @@ void BOOLEAN(int Opcode, string inst)
 
             break;
         }
+
+        default: // If invalid opcode
+        {
+            instruction_semantics.push_back("Invalid Opcode");
+            functional_unit_used.push_back("Invalid Opcode");
+            registers_used.push_back("Invalid Opcode");
+        }
     }
 }
-#pragma endregion // Needs work
+#pragma endregion
 
 #pragma region Shift Unit
 void SHIFT(int Opcode, string inst)
