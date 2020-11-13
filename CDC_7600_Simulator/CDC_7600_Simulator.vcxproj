@@ -145,9 +145,15 @@
     <ClInclude Include="CDC_7600_Simulator.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="instructions.txt" />
+    <Text Include="instructions1.txt" />
+    <Text Include="instructions2.txt" />
+    <Text Include="Instructions2_Notes.txt" />
+    <Text Include="instructions3.txt" />
+    <Text Include="Instructions3_Notes.txt" />
     <Text Include="Instructions_Notes.txt" />
-    <Text Include="semantics.txt" />
+    <Text Include="semantics1.txt" />
+    <Text Include="semantics2.txt" />
+    <Text Include="semantics3.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

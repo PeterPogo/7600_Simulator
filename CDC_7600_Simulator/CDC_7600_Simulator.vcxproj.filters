@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Instuction_Notes">
+      <UniqueIdentifier>{ad00cc5b-94d3-49c5-9622-5b07f2843dce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDC_7600_Simulator.cpp">
@@ -25,13 +28,31 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="instructions.txt">
+    <Text Include="semantics2.txt">
       <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="semantics3.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="Instructions3_Notes.txt">
+      <Filter>Source Files\Instuction_Notes</Filter>
+    </Text>
+    <Text Include="Instructions2_Notes.txt">
+      <Filter>Source Files\Instuction_Notes</Filter>
     </Text>
     <Text Include="Instructions_Notes.txt">
+      <Filter>Source Files\Instuction_Notes</Filter>
+    </Text>
+    <Text Include="semantics1.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="semantics.txt">
+    <Text Include="instructions1.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="instructions3.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="instructions2.txt">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>

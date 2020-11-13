@@ -1,3 +1,5 @@
+Y = AX^2 + BX + C (with vectors) (Test Data #3) (example from class, word doc)
+
 101000 001 001 000000000000000001  increment(50) A1 = A1 + K1              Fetch X     N1
 101000 010 010 000000000000000010  increment(50) A2 = A2 + K2              Fetch A
 

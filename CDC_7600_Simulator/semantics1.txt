@@ -3,7 +3,7 @@ Fetch A
 Fetch B
 Fetch C
 Set B1 to 1
-Set B2 to v.len
+Set B2 to V.len
 Form X^2
 Form AX^2
 Form BX
