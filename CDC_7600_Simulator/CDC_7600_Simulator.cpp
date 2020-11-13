@@ -619,11 +619,15 @@ string get_unique_registers(string dest, string op1, string op2)
 #pragma region Branch Unit
 void BRANCH(int Opcode, string inst)
 {
-    string semantic_string;
+    string semantic_string = "";
+    string register_string = "";
+    string destination = "";
+    string operand1 = "";
+    string operand2 = "";
 
     switch (Opcode)
     {
-        case 00: // Stop, 0 clocks
+        case 00: // Stop, 0 clocks  // Done
         {
             instruction_semantics.push_back("-");
             functional_unit_used.push_back("Branch, Increment, Boolean");
@@ -631,33 +635,32 @@ void BRANCH(int Opcode, string inst)
             
             break;
         }
-        case 01: // RETURN JUMP to K, 14 clocks
-        {
-            if (inst.length() <= 15) { instruction_semantics.push_back("RETURN JUMP to K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong())); }
-            else { instruction_semantics.push_back("RETURN JUMP to K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong())); }
-          
-            functional_unit_used.push_back("Branch, Increment, Boolean");
-            registers_used.push_back("-");
 
-            break;
-        }
-        case 02: // GO TO K + Bi (note 1), 14 clocks
+        case 01: // RETURN JUMP to K, 14 clocks // Done
         {
-            semantic_string = "";
-            if (inst.length() <= 15)
-            { 
-                semantic_string+= "Go to K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
-                semantic_string += " + B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
-            }
-            else 
-            {
-                semantic_string += "Go to K" + to_string(bitset<6>(inst.substr(12, 3)).to_ulong());
-                semantic_string += " + B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
-            }
+            destination = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+
+            semantic_string = "RETURN JUMP to " + destination;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Branch, Increment, Boolean");
-            registers_used.push_back(semantic_string.substr((semantic_string.length()) - 2, 2));
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
+
+            break;
+        }
+
+        case 02: // GO TO K + Bi (note 1), 14 clocks     // Done
+        {
+            operand1 = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+
+            operand2 = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+
+            semantic_string = "GO TO " + operand2 + " + " + operand1;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Branch, Increment, Boolean");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
         }
@@ -697,26 +700,112 @@ void BRANCH(int Opcode, string inst)
         //}
         #pragma endregion
 
-        case 04: // GO TO K if Bi == Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        case 04: // GO TO K if Bi == Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)  // Done
         {
+            operand1 = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand2 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+            if (inst.length() <= 15)
+            {
+                destination = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                destination = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = "Go to " + destination + " if " + operand1 + " == " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Branch, Increment, Boolean");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
+
             break;
         }
+
         case 05: // GO TO K if Bi != Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
         {
+            operand1 = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand2 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+            if (inst.length() <= 15)
+            {
+                destination = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                destination = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = "Go to " + destination + " if " + operand1 + " != " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Branch, Increment, Boolean");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
+
             break;
         }
+
         case 06: // Go TO K if Bi >= Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
         {
+            operand1 = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand2 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+            if (inst.length() <= 15)
+            {
+                destination = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                destination = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = "Go to " + destination + " if " + operand1 + " >= " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Branch, Increment, Boolean");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
+
             break;
         }
+
         case 07: // GO TO K if Bi < Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
         {
+            operand1 = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand2 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
+
+            if (inst.length() <= 15)
+            {
+                destination = "K" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
+            }
+            else
+            {
+                destination = "K" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
+            }
+
+            semantic_string = "Go to " + destination + " if " + operand1 + " < " + operand2;
+            instruction_semantics.push_back(semantic_string);
+
+            functional_unit_used.push_back("Branch, Increment, Boolean");
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
+
             break;
+        }
+
+        default: // If invalid opcode
+        {
+            instruction_semantics.push_back("Invalid Opcode");
+            functional_unit_used.push_back("Invalid Opcode");
+            registers_used.push_back("Invalid Opcode");
         }
     }
 }
 
-#pragma endregion // Needs work
+#pragma endregion
 
 #pragma region Boolean Unit
 void BOOLEAN(int Opcode, string inst)
@@ -734,7 +823,7 @@ void BOOLEAN(int Opcode, string inst)
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
             operand1 = "X" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
-            semantic_string = "TRANSMIT " + operand1 + " to " + destination;
+            semantic_string = operand1 + " --> " + destination;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -758,7 +847,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = " + operand1 + " && " + operand2;
+            semantic_string = destination + " = " + operand1 + " ^ " + operand2;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -806,7 +895,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = " + operand1 + " + !" + operand2;
+            semantic_string = destination + " = " + operand1 + " - " + operand2;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -829,7 +918,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand1 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = COMP. " + operand1;
+            semantic_string = "!" + operand1 + " --> " + destination;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -853,7 +942,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = " + operand1 + " && COMP. " + operand2;
+            semantic_string = destination + " = " + operand1 + " ^ !" + operand2;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -877,7 +966,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = " + operand1 + " + COMP. " + operand2;
+            semantic_string = destination + " = " + operand1 + " + !" + operand2;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
@@ -901,7 +990,7 @@ void BOOLEAN(int Opcode, string inst)
                 operand2 = "X" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
             }
 
-            semantic_string = destination + " = " + operand1 + " + !COMP. " + operand2;
+            semantic_string = destination + " = " + operand1 + " - !" + operand2;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Boolean");
