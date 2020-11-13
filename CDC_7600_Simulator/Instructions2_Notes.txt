@@ -1,4 +1,4 @@
-Y = AX^2 + BX (no vectors) (Test Data #2) (Powerpoint slide 149 module 2)
+Y = AX^2 + BX (no vectors) (Test Data #1) (Powerpoint slide 149 module 2 modified)
 
 101000 001 001 000000000000000001  increment(50)   A1 = A1 + K1       Fetch X          N1
 101000 010 010 000000000000000010  increment(50)   A2 + A2 + K2       Fetch A

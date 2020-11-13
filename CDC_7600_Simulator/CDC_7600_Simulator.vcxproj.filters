@@ -40,9 +40,6 @@
     <Text Include="Instructions2_Notes.txt">
       <Filter>Source Files\Instuction_Notes</Filter>
     </Text>
-    <Text Include="Instructions_Notes.txt">
-      <Filter>Source Files\Instuction_Notes</Filter>
-    </Text>
     <Text Include="semantics1.txt">
       <Filter>Source Files</Filter>
     </Text>
@@ -54,6 +51,9 @@
     </Text>
     <Text Include="instructions2.txt">
       <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="Instructions1_Notes.txt">
+      <Filter>Source Files\Instuction_Notes</Filter>
     </Text>
   </ItemGroup>
 </Project>

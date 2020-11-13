@@ -1,0 +1,15 @@
+Y = AX^2 + BX + C (no vectors) (Test Data #2) (Powerpoint slide 149 module 2)
+
+101000 001 001 000000000000000001  increment(50)   A1 = A1 + K1       Fetch X          N1
+101000 010 010 000000000000000010  increment(50)   A2 + A2 + K2       Fetch A
+
+100000 000 001 001 				   FL_multiply(40) X0 = X1 * X1       Form X^2          N2
+100000 110 000 010 				   FL_multiply(40) X6 = X0 * X2       Form AX^2
+101000 011 011 000000000000000011  increment(50)   A3 = A3 + K3       Fetch B
+
+101000 100 100 000000000000000100  increment(50)   A4 = A4 + K4       Fetch C          N3
+100000 011 011 001   			   FL_multiply(40) X3 = X3 * X1       Form BX
+011000 101 110 011		     	   FL_add(30)      X5 = X6 + X3       Form AX^2 + BX
+
+011000 111 101 100	     	       FL_add(30)      X7 = X5 + X4       Form Y            N4
+101000 111 111 101				   increment(50)   A7 = A7 + K5       Store Y

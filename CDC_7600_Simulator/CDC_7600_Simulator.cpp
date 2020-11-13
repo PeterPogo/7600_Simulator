@@ -159,7 +159,7 @@ int main()
         cout << "\n\nReading instructions from file (binary).....\n\n";
 
         // Read in semantics
-        ifstream sem_input_file("semantics2.txt");
+        ifstream sem_input_file("semantics3.txt");
         if (sem_input_file.is_open())
         {
             while (getline(sem_input_file, semantic))
@@ -175,7 +175,7 @@ int main()
         }
 
         // Read in binary
-        ifstream inst_input_file("instructions2.txt");
+        ifstream inst_input_file("instructions3.txt");
         if (inst_input_file.is_open())
         {
             while ( getline(inst_input_file, instruction))
@@ -195,7 +195,7 @@ int main()
        // Create blank table and fill in vectors by decoding
        create_blank_table(instructions);
 
-       output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 8);
+       output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 10);
 
        // simulate_CDC7600(test_data_choice);
 
