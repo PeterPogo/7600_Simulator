@@ -21,6 +21,17 @@ bool check_foc2(int inst_num);
 bool check_soc(int inst_num);
 bool check_toc(int inst_num);
 
+vector<bool> get_indiv_fu(int inst_num);
+int get_result_execution_time(int inst_num);
+int get_result_segment_time(int inst_num);
+
+bool check_store_op(int inst_num);
+bool check_fetch_op(int inst_num);
+
+void reserve_units(int inst_num);
+void check_func_unit_complete(int inst_num, int curr_clock);
+void clear_func_unit(int inst_num);
+
 
 // functional units
 void BRANCH(int Opcode, string inst);

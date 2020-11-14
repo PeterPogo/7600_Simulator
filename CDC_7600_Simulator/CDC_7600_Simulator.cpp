@@ -16,8 +16,13 @@
 #include <iomanip> 
 #include <cmath>
 #include <algorithm>
+#include <chrono>
+#include <thread>
 #include "CDC_7600_Simulator.h"
 using namespace std;
+using namespace std::this_thread;     // sleep_for, sleep_until
+using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
+using std::chrono::system_clock;
 
 class Func_Unit_SB
 {
@@ -51,6 +56,13 @@ public:
         segment_Time = Seg_time;
         execution_Time = Ex_time;
 
+        S1 = "--";
+        S2 = "--";
+        D1 = "--";
+    }
+
+    void clear_src_dest()
+    {
         S1 = "--";
         S2 = "--";
         D1 = "--";
@@ -124,9 +136,14 @@ vector<string> fetch;
 vector<string> store;
 vector<string> functional_unit_used;
 vector<string> registers_used;
+
+
+vector<vector<bool>> indiv_functional_unit_used;
 vector<string> source_1;
 vector<string> source_2;
 vector<string> destination;
+
+vector<string> instructions;
 #pragma endregion
 
 Scoreboard SB;
@@ -138,72 +155,63 @@ int main()
     // Y = AX2 + BX , X & Y are vectors (limited to 5 entries)
     // Y = AX2 + BX + C
 
-    // Start simulation by asking for input
-    int test_data_choice;
-
-    bool continue_sim = true;
-    char continue_response;
-
     int instruction_count = 0;
     string instruction;
-    vector<string> instructions;
     string semantic;
 
     cout << "--- CDC 7600 Simulator ---";
-    while (continue_sim)
-    {
-        //cout <<"\n\nChose an equation to simulate:" << "\n1: Y = AX^2 + BX" << "\n2: Y = AX^2 + BX + C" << "\n3: Y = AX^2 + BX (X & Y = vectors)\n\n";
-        //cin >> test_data_choice;
+
+
+    //cout <<"\n\nChose an equation to simulate:" << "\n1: Y = AX^2 + BX" << "\n2: Y = AX^2 + BX + C" << "\n3: Y = AX^2 + BX (X & Y = vectors)\n\n";
+    //cin >> test_data_choice;
         
-        // Read in instructions from file
-        cout << "\n\nReading instructions from files (binary).....\n\n";
+    // Read in instructions from file
+    cout << "\n\nReading instructions from files (binary).....\n\n";
 
-        // Read in semantics
-        ifstream sem_input_file("semantics3.txt");
-        if (sem_input_file.is_open())
+
+    // Read in semantics
+    ifstream sem_input_file("semantics3.txt");
+    if (sem_input_file.is_open())
+    {
+        while (getline(sem_input_file, semantic))
         {
-            while (getline(sem_input_file, semantic))
-            {
-                instruction_semantics_2.push_back(semantic);
-            }
-            sem_input_file.close();
+            instruction_semantics_2.push_back(semantic);
         }
-        else 
-        {
-            cout << "\nUnable to open semantics file";
-            break;
-        }
-
-        // Read in binary
-        ifstream inst_input_file("instructions3.txt");
-        if (inst_input_file.is_open())
-        {
-            while ( getline(inst_input_file, instruction))
-            {
-                instructions.push_back(instruction);
-                cout << "Instruction " << instruction_count << ": " << instruction << " " << instruction_semantics_2[instruction_count] <<'\n';
-                instruction_count++;
-            }
-            inst_input_file.close();
-        }
-        else
-        { 
-            cout << "\nUnable to open instructions file";
-            break;
-        }
-
-       // Create blank table and fill in vectors by decoding
-       create_blank_table(instructions);
-
-       //output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, inst_count);
-
-       simulate_CDC7600(instruction_count);
-
-        cout << "\n\nSimulation complete, would you like to simulate another set of instructions? y/n:  ";
-        cin >> continue_response;
-        if (continue_response == 'n') { continue_sim = false; }
+        sem_input_file.close();
     }
-    cout << "\nExiting...."; // Simulation complete
+    else
+    {
+        cout << "\nUnable to open semantics file";
+
+        return 0;
+    }
+
+    // Read in binary
+    ifstream inst_input_file("instructions3.txt");
+    if (inst_input_file.is_open())
+    {
+        while (getline(inst_input_file, instruction))
+        {
+            instructions.push_back(instruction);
+            cout << "Instruction " << instruction_count << ": " << instruction << " " << instruction_semantics_2[instruction_count] << '\n';
+            instruction_count++;
+        }
+        inst_input_file.close();
+    }
+    else
+    {
+        cout << "\nUnable to open instructions file";
+
+        return 0;
+    }
+
+    // Create blank table and fill in vectors by decoding
+    create_blank_table(instructions);
+
+    // Simulate the CDC7600
+    simulate_CDC7600(instruction_count);
+
+    cout << "\nExiting....\n\n"; // Simulation complete
 }
 
 
@@ -252,101 +260,101 @@ void create_blank_table(vector<string> instructions_v)
 
     // Testing values for printing
 #pragma region Fake Values
-    issue.push_back(1);
-    issue.push_back(3);
-    issue.push_back(9);
-    issue.push_back(11);
-    issue.push_back(17);
-    issue.push_back(19);
-    issue.push_back(25);
-    issue.push_back(26);
-    issue.push_back(36);
-    issue.push_back(37);
-    issue.push_back(41);
-    issue.push_back(42);
-    issue.push_back(51);
-    issue.push_back(56);
-    issue.push_back(60);
+    //issue.push_back(1);
+    //issue.push_back(3);
+    //issue.push_back(9);
+    //issue.push_back(11);
+    //issue.push_back(17);
+    //issue.push_back(19);
+    //issue.push_back(25);
+    //issue.push_back(26);
+    //issue.push_back(36);
+    //issue.push_back(37);
+    //issue.push_back(41);
+    //issue.push_back(42);
+    //issue.push_back(51);
+    //issue.push_back(56);
+    //issue.push_back(60);
 
-    start.push_back(1);
-    start.push_back(3);
-    start.push_back(9);
-    start.push_back(11);
-    start.push_back(17);
-    start.push_back(19);
-    start.push_back(25);
-    start.push_back(35);
-    start.push_back(36);
-    start.push_back(37);
-    start.push_back(41);
-    start.push_back(46);
-    start.push_back(51);
-    start.push_back(56);
-    start.push_back(0);
+    //start.push_back(1);
+    //start.push_back(3);
+    //start.push_back(9);
+    //start.push_back(11);
+    //start.push_back(17);
+    //start.push_back(19);
+    //start.push_back(25);
+    //start.push_back(35);
+    //start.push_back(36);
+    //start.push_back(37);
+    //start.push_back(41);
+    //start.push_back(46);
+    //start.push_back(51);
+    //start.push_back(56);
+    //start.push_back(0);
 
-    result.push_back(4);
-    result.push_back(6);
-    result.push_back(12);
-    result.push_back(14);
-    result.push_back(20);
-    result.push_back(22);
-    result.push_back(35);
-    result.push_back(45);
-    result.push_back(46);
-    result.push_back(40);
-    result.push_back(44);
-    result.push_back(50);
-    result.push_back(55);
-    result.push_back(59);
-    result.push_back(72);
+    //result.push_back(4);
+    //result.push_back(6);
+    //result.push_back(12);
+    //result.push_back(14);
+    //result.push_back(20);
+    //result.push_back(22);
+    //result.push_back(35);
+    //result.push_back(45);
+    //result.push_back(46);
+    //result.push_back(40);
+    //result.push_back(44);
+    //result.push_back(50);
+    //result.push_back(55);
+    //result.push_back(59);
+    //result.push_back(72);
 
-    unit_ready.push_back(5);
-    unit_ready.push_back(7);
-    unit_ready.push_back(13);
-    unit_ready.push_back(15);
-    unit_ready.push_back(21);
-    unit_ready.push_back(23);
-    unit_ready.push_back(36);
-    unit_ready.push_back(46);
-    unit_ready.push_back(47);
-    unit_ready.push_back(41);
-    unit_ready.push_back(45);
-    unit_ready.push_back(51);
-    unit_ready.push_back(56);
-    unit_ready.push_back(60);
-    unit_ready.push_back(0);
+    //unit_ready.push_back(5);
+    //unit_ready.push_back(7);
+    //unit_ready.push_back(13);
+    //unit_ready.push_back(15);
+    //unit_ready.push_back(21);
+    //unit_ready.push_back(23);
+    //unit_ready.push_back(36);
+    //unit_ready.push_back(46);
+    //unit_ready.push_back(47);
+    //unit_ready.push_back(41);
+    //unit_ready.push_back(45);
+    //unit_ready.push_back(51);
+    //unit_ready.push_back(56);
+    //unit_ready.push_back(60);
+    //unit_ready.push_back(0);
 
-    fetch.push_back(to_string(9));
-    fetch.push_back(to_string(11));
-    fetch.push_back(to_string(17));
-    fetch.push_back(to_string(19));
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(to_string(45));
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(" ");
-    fetch.push_back(" ");
+    //fetch.push_back(to_string(9));
+    //fetch.push_back(to_string(11));
+    //fetch.push_back(to_string(17));
+    //fetch.push_back(to_string(19));
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(to_string(45));
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
+    //fetch.push_back(" ");
 
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back(" ");
-    store.push_back("27");
-    store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back(" ");
+    //store.push_back("27");
+    //store.push_back(" ");
 #pragma endregion
 }
 
@@ -525,9 +533,7 @@ void simulate_CDC7600(int inst_count)
     bool soc = false; // Second order conflict
     bool toc = false; // Third order conflict
 
-    // Iterate through each instruction within the "instructions" vector
-    for (int curr_inst = 0; curr_inst < inst_count; curr_inst++)
-    { 
+
         // First check for 1st order conflict (hardware not available) if so stop pipeline and wait, if not then tag the used functional unit as reserved
         // Then check for 1st order conflict (pt2) (destination in use) (Write after Write), stop pipeline again, if not then add those registers to a "in use" vector
         // Next check sources (2nd order conflict) (Read after Write), are source registers the destination of a previously issued instruction which has not been completed?
@@ -543,33 +549,129 @@ void simulate_CDC7600(int inst_count)
         //    - 1 between short --> short
         //    - 1 between short --> long
 
+    // sources / destinations can be in A or X form
+
+    // Iterate through each instruction within the "instructions" vector
+    for (int curr_inst = 0; curr_inst < inst_count; curr_inst++)
+    {    
+        if (curr_inst == 0) // Treat first instruction differently
+        {
+            // Get functional unit(s)
+            indiv_functional_unit_used.push_back(get_indiv_fu(curr_inst)); // Boolean vector
+
+            // Since no conflicts are possible, reserve those functional units and add in used registers to scoreboard
+            reserve_units(curr_inst);
+            
+            issue.push_back(1);
+            start.push_back(1);
+            result.push_back(start[start.size() - 1] + get_result_execution_time(curr_inst));
+            unit_ready.push_back(start[start.size() - 1] + get_result_segment_time(curr_inst));
+
+            // Fill in fetch entry, This shouldn't be affected by anything
+            if (check_fetch_op(curr_inst))
+            {
+                fetch.push_back(to_string(result[result.size() - 1] + 4));
+            }
+            else { fetch.push_back("-"); }
+
+            // Fill in store entry, This shouldn't be affected by anything
+            if (check_store_op(curr_inst))
+            {
+                store.push_back(to_string(result[result.size() - 1] + 6));
+            }
+            else { store.push_back("-"); }
+        }
+        else
+        {
+            // First problem is figuring out the issue entry: it can be affected by hardware conflict, must be iterated either +1 or +2 and changing words. Hardware conflict will have the largest affect
+
+            // Default to the above logic for iterating each issue
+            if (instruction_word[curr_inst] == "  ")
+            {
+                if (instruction_length[curr_inst - 1] == "Long") { clock_pulses += 2; }
+                else { clock_pulses++; }
+            }
+            else if (instruction_word[curr_inst] != "  ")
+            {
+                if (instruction_word[curr_inst - 1] != "  ") { clock_pulses = issue[curr_inst - 1] + 6; }
+                else if(instruction_word[curr_inst - 2] != "  ") { clock_pulses = issue[curr_inst - 2] + 6; }
+                else if (instruction_word[curr_inst - 3] != "  ") { clock_pulses = issue[curr_inst - 3] + 6; }
+                else if (instruction_word[curr_inst - 4] != "  ") { clock_pulses = issue[curr_inst - 4] + 6; }
+            }
+
+            // Get instruction functional unit(s)
+            indiv_functional_unit_used.push_back(get_indiv_fu(curr_inst));
+
+            // now that default issue entry is made, check to see if functional units are free now and remove their busy tags
+            check_func_unit_complete(curr_inst, clock_pulses);
+
+            reserve_units(curr_inst);
+            // Check for 1st order conflict, this can modify the issue entry
+            if (check_foc(curr_inst))
+            {
+                // find where the conflict is >_>
+
+            }
+            else
+            {
+
+            }
+            
+            issue.push_back(clock_pulses);
+            
+            if (check_foc2(curr_inst))
+            {
+
+            }
+
+  
+            
+            // each instructions' registers are in vectors source_1, source_2, destination. Need to get pairs X,A for each if they are not unique. Basically will be looking for 6 values within SB
+
+            if (check_soc(curr_inst))
+            {
+
+            }
+            else if (check_toc(curr_inst))
+            {
+
+            }
+
+            // Fill start entry, this affects a lot
+            start.push_back(clock_pulses);
+
+
+
+
+
+
+
+            // Fill result entry, This shouldn't be affected by anything
+            result.push_back(start[start.size() - 1] + get_result_execution_time(curr_inst));
+
+            // Fill unit ready entry, This shouldn't be affected by anything
+            unit_ready.push_back(start[start.size() - 1] + get_result_segment_time(curr_inst));
+
+            // Fill in fetch entry, This shouldn't be affected by anything
+            if (check_fetch_op(curr_inst))
+            {
+                fetch.push_back(to_string(result[result.size() - 1] + 4));
+            }
+            else { fetch.push_back("-"); }
+
+            // Fill in store entry, This shouldn't be affected by anything
+            if (check_store_op(curr_inst))
+            {
+                store.push_back(to_string(result[result.size() - 1] + 6));
+            }
+            else { store.push_back("-"); }
+        }
+
         
-        // Check for 1st order conflict
-        if (check_foc(curr_inst))
-        {
-
-        }
-        else if (check_foc2(curr_inst))
-        {
-
-        }
-        else if (check_soc(curr_inst))
-        {
-
-        }
-        else if (check_toc(curr_inst))
-        {
-
-        }
-
-        // now you can fill table
-
+        cout << "\n\n" << SB;
+        output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, curr_inst+1);
+        sleep_for(1s);
     }
-
-
-    //output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 10);
-
-    cout << "\n\n" << SB;
 }
 
 
@@ -863,6 +965,342 @@ bool check_toc(int inst_num)
 }
 
 
+// Get individual vectors from functional_unit_used vector (because it's in sentence form)
+vector<bool> get_indiv_fu(int inst_num)
+{
+    vector<bool> temp;
+    
+    // Check for conflict with Boolean unit
+    if (functional_unit_used[inst_num].find("Boolean") != std::string::npos)
+    {
+        temp.push_back(true);
+    }
+    else { temp.push_back(false); }
+
+
+    // Check for conflict with Shift unit
+    if (functional_unit_used[inst_num].find("Shift") != std::string::npos)
+    {
+        temp.push_back(true);
+    }
+    else { temp.push_back(false); }
+
+
+    // Check for conflict with Long-Add unit
+    if (functional_unit_used[inst_num].find("Long-Add") != std::string::npos)
+    {
+        temp.push_back(true);
+    }
+    else { temp.push_back(false); }
+
+
+    // Check for conflict with FL Add unit
+    if (functional_unit_used[inst_num].find("FL Add") != std::string::npos)
+    {
+        temp.push_back(true);
+    }
+    else { temp.push_back(false); }
+
+
+    // Check for conflict with FL Multiply unit
+    if (functional_unit_used[inst_num].find("FL Multiply") != std::string::npos)
+    {
+        temp.push_back(true);
+    }
+    else { temp.push_back(false); }
+
+
+    // Check for conflict with FL Divide unit
+    if (functional_unit_used[inst_num].find("FL Divide") != std::string::npos)
+    {
+        temp.push_back(true);
+    }
+    else { temp.push_back(false); }
+
+
+    // Check for conflict with Normalize unit
+    if (functional_unit_used[inst_num].find("Normalize") != std::string::npos)
+    {
+        temp.push_back(true);;
+    }
+    else { temp.push_back(false); }
+
+
+    // Check for conflict with Pop_Count unit
+    if (functional_unit_used[inst_num].find("Pop_Count") != std::string::npos)
+    {
+        temp.push_back(true);
+    }
+    else { temp.push_back(false); }
+
+
+    // Check for conflict with Increment unit
+    if (functional_unit_used[inst_num].find("Increment") != std::string::npos)
+    {
+        temp.push_back(true);
+    }
+    else { temp.push_back(false); }
+
+    return temp;
+}
+
+
+// get worst case execution time given the func units   
+int get_result_execution_time(int inst_num)
+{
+    vector<bool> temp = indiv_functional_unit_used[inst_num];
+   
+    if (temp[5]) // Floating Divide
+    {
+        return 20;
+    }
+    
+    if (temp[4]) // Floating Multiply
+    {
+        return 5;
+    }
+    
+    if (temp[3]) // Floating Add
+    {
+        return 4;
+    }
+    
+    if (temp[6]) // Normalize
+    {
+        return 3;
+    }
+    
+    return 2; // Everything else has this execution time
+
+}
+
+
+// get worst case segment time given the func units   
+int get_result_segment_time(int inst_num)
+{
+    vector<bool> temp = indiv_functional_unit_used[inst_num];
+
+    if (temp[5]) // Floating Divide
+    {
+        return 18;
+    }
+
+    if (temp[4]) // Floating Multiply
+    {
+        return 2;
+    }
+
+    return 1; // Everything else has this segment time
+}
+
+
+// Check to see if the current operation fetches by using semantics
+bool check_fetch_op(int inst_num)
+{
+    if (instruction_semantics_2[inst_num].find("Fetch") != std::string::npos)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+// Check to see if the current operation stores by using semantics
+bool check_store_op(int inst_num)
+{
+    if (instruction_semantics_2[inst_num].find("Store") != std::string::npos)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+// Reserve all units for a given instruction (Assumes no hardware conflict)
+void reserve_units(int inst_num)
+{
+    vector<bool> temp = indiv_functional_unit_used[inst_num];
+    
+    // Only write sources, destination to the main func_unit (organized specifically)
+    if (temp[4]) // FL Multiply
+    {
+        SB.Floating_Multiply.S1 = source_1[inst_num];
+        SB.Floating_Multiply.S2 = source_2[inst_num];
+        SB.Floating_Multiply.D1 = destination[inst_num];
+    }
+    else if (temp[3]) // FL Add
+    {
+        SB.Floating_Add.S1 = source_1[inst_num];
+        SB.Floating_Add.S2 = source_2[inst_num];
+        SB.Floating_Add.D1 = destination[inst_num];
+    }
+    else if (temp[6]) // Normalize or Branch
+    {
+        SB.Normalize.S1 = source_1[inst_num];
+        SB.Normalize.S2 = source_2[inst_num];
+        SB.Normalize.D1 = destination[inst_num];
+    }
+    else if (temp[5]) // Divide 
+    { 
+        SB.Floating_Divide.S1 = source_1[inst_num];
+        SB.Floating_Divide.S2 = source_2[inst_num];
+        SB.Floating_Divide.D1 = destination[inst_num];
+    }
+    else if (temp[0]) // Boolean
+    {
+        SB.Boolean.S1 = source_1[inst_num];
+        SB.Boolean.S2 = source_2[inst_num];
+        SB.Boolean.D1 = destination[inst_num];
+    }
+    else if (temp[1]) // Shift
+    {
+        SB.Shift.S1 = source_1[inst_num];
+        SB.Shift.S2 = source_2[inst_num];
+        SB.Shift.D1 = destination[inst_num];
+    }
+    else if (temp[2]) // Fixed Add
+    {
+        SB.Fixed_Add.S1 = source_1[inst_num];
+        SB.Fixed_Add.S2 = source_2[inst_num];
+        SB.Fixed_Add.D1 = destination[inst_num];
+    }
+    else if (temp[7]) // Pop_Count
+    {
+        SB.Pop_count.S1 = source_1[inst_num];
+        SB.Pop_count.S2 = source_2[inst_num];
+        SB.Pop_count.D1 = destination[inst_num];
+    }
+    else if (temp[8]) // Increment
+    {
+        SB.Increment.S1 = source_1[inst_num];
+        SB.Increment.S2 = source_2[inst_num];
+        SB.Increment.D1 = destination[inst_num];
+    }
+
+    // Reserve those units by changing the "Busy_tag"
+    if (temp[4]) // FL Multiply
+    {
+        SB.Floating_Multiply.busy_tag = true;
+    }
+    
+    if (temp[3]) // FL Add
+    {
+        SB.Floating_Add.busy_tag = true;
+    }
+    
+    if (temp[6]) // Normalize or Branch
+    {
+        SB.Normalize.busy_tag = true;
+    }
+    
+    if (temp[5]) // Divide 
+    {
+        SB.Floating_Divide.busy_tag = true;
+    }
+    
+    if (temp[0]) // Boolean
+    {
+        SB.Boolean.busy_tag = true;
+    }
+    
+    if (temp[1]) // Shift
+    {
+        SB.Shift.busy_tag = true;
+    }
+    
+    if (temp[2]) // Fixed Add
+    {
+        SB.Fixed_Add.busy_tag = true;
+    }
+    
+    if (temp[7]) // Pop_Count
+    {
+        SB.Pop_count.busy_tag = true;
+    }
+    
+    if (temp[8]) // Increment
+    {
+        SB.Increment.busy_tag = true;
+    }
+}
+
+// Clear busy flag and operators used in SB if the instruction is complete
+void clear_func_unit(int inst_num)
+{
+    vector<bool> temp = indiv_functional_unit_used[inst_num];
+
+    // Clear all if any used functional units once an instruction is complete
+    if (temp[0]) // Boolean
+    {
+        SB.Boolean.clear_src_dest();
+        SB.Boolean.busy_tag = false;
+    }
+
+    if (temp[1]) // Shift
+    {
+        SB.Shift.clear_src_dest();
+        SB.Shift.busy_tag = false;
+    }
+
+    if (temp[2]) // Fixed Add
+    {
+        SB.Fixed_Add.clear_src_dest();
+        SB.Fixed_Add.busy_tag = false;
+    }
+    
+    if (temp[3]) // FL Add
+    {
+        SB.Floating_Add.clear_src_dest();
+        SB.Floating_Add.busy_tag = false;
+    }
+
+    if (temp[4]) // FL Multiply
+    {
+        SB.Floating_Multiply.clear_src_dest();
+        SB.Floating_Multiply.busy_tag = false;
+    }
+   
+    if (temp[5]) // Divide 
+    {
+        SB.Floating_Divide.clear_src_dest();
+        SB.Floating_Divide.busy_tag = false;
+    }
+
+    if (temp[6]) // Normalize or Branch
+    {
+        SB.Normalize.clear_src_dest();
+        SB.Normalize.busy_tag = false;
+    }
+
+    if (temp[7]) // Pop_Count
+    {
+        SB.Pop_count.clear_src_dest();
+        SB.Pop_count.busy_tag = false;
+    }
+
+    if (temp[8]) // Increment
+    {
+        SB.Increment.clear_src_dest();
+        SB.Increment.busy_tag = false;
+    }
+}
+
+// Check to see if any functional units above the current instruction have compelted and reset their busy tags / holds on data
+void check_func_unit_complete(int inst_num, int curr_clock)
+{
+    for (int i = inst_num; i > 0; i--)
+    {
+        if (functional_unit_used[inst_num] == functional_unit_used[i]) // Possible conflict bc similar instruction
+        {
+            if (unit_ready[i-1] < curr_clock) // then that instruction is complete
+            {
+                clear_func_unit(i); // Clear its busy_tag and sources, destination
+            }
+        }
+    }
+}
+
 // Format and print the Table as rows are solved
 void output_table(vector<string> inst_word, vector<string> inst_sem, vector<string> inst_sem2, vector<string> inst_len, vector<int> issue, vector<int> start, vector<int> result, vector<int> unit_ready, vector<string> fetch, vector<string> store, vector<string> functional_unit_used, vector<string> registers_used, int rows_solved)
 {
@@ -913,10 +1351,6 @@ string get_unique_registers(string dest, string op1, string op2)
     
     vector<string> temp_vector;
 
-    source_1.push_back(op1);
-    source_2.push_back(op2);
-    destination.push_back(dest);
-
     if (dest != "" && dest[0] != 'K')
     {
         temp_vector.push_back(dest);
@@ -926,6 +1360,11 @@ string get_unique_registers(string dest, string op1, string op2)
             string extra_operand = "X";
             extra_operand += dest[1];
             temp_vector.push_back(extra_operand);
+        }
+        
+        if (dest[0] != 'B')
+        {
+            destination.push_back(dest);
         }
     }
 
@@ -938,6 +1377,11 @@ string get_unique_registers(string dest, string op1, string op2)
             string extra_operand = "X";
             extra_operand += op1[1];
             temp_vector.push_back(extra_operand);
+        }
+
+        if (op1[0] != 'B')
+        {
+            source_1.push_back(op1);
         }
     }
 
@@ -952,6 +1396,13 @@ string get_unique_registers(string dest, string op1, string op2)
             extra_operand += op2[1];
             temp_vector.push_back(extra_operand);
         }
+    }
+
+    if (op2 != "" && op2[0] != 'B')
+    {
+        if(op2[0] == 'K') { source_2.push_back("--"); }
+
+        source_2.push_back(op2);
     }
     
     sort(temp_vector.begin(), temp_vector.end());
