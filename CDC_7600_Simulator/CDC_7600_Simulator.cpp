@@ -51,9 +51,9 @@ public:
         segment_Time = Seg_time;
         execution_Time = Ex_time;
 
-        S1 = "B1";
-        S2 = "A3";
-        D1 = "X3";
+        S1 = "--";
+        S2 = "--";
+        D1 = "--";
     }
 };
 
@@ -84,9 +84,6 @@ public:
         Pop_count.SetParameters("Pop_count", false, true, 1, 2);
         Increment.SetParameters("Increment", false, true, 1, 2);
     }
-
-    // Detect conficts
-    // Resolve conflicts
 };
 
 #pragma region Operator Overloading
@@ -127,7 +124,12 @@ vector<string> fetch;
 vector<string> store;
 vector<string> functional_unit_used;
 vector<string> registers_used;
+vector<string> source_1;
+vector<string> source_2;
+vector<string> destination;
 #pragma endregion
+
+Scoreboard SB;
 
 int main()
 {
@@ -142,12 +144,10 @@ int main()
     bool continue_sim = true;
     char continue_response;
 
-    int inst_count = 0;
+    int instruction_count = 0;
     string instruction;
     vector<string> instructions;
-
     string semantic;
-
 
     cout << "--- CDC 7600 Simulator ---";
     while (continue_sim)
@@ -181,8 +181,8 @@ int main()
             while ( getline(inst_input_file, instruction))
             {
                 instructions.push_back(instruction);
-                cout << "Instruction " << inst_count << ": " << instruction << " " << instruction_semantics_2[inst_count] <<'\n';
-                inst_count++;
+                cout << "Instruction " << instruction_count << ": " << instruction << " " << instruction_semantics_2[instruction_count] <<'\n';
+                instruction_count++;
             }
             inst_input_file.close();
         }
@@ -195,9 +195,9 @@ int main()
        // Create blank table and fill in vectors by decoding
        create_blank_table(instructions);
 
-       output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 10);
+       //output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, inst_count);
 
-       // simulate_CDC7600(test_data_choice);
+       simulate_CDC7600(instruction_count);
 
         cout << "\n\nSimulation complete, would you like to simulate another set of instructions? y/n:  ";
         cin >> continue_response;
@@ -205,6 +205,7 @@ int main()
     }
     cout << "\nExiting...."; // Simulation complete
 }
+
 
 void create_blank_table(vector<string> instructions_v)
 {
@@ -349,8 +350,9 @@ void create_blank_table(vector<string> instructions_v)
 #pragma endregion
 }
 
+
 // Simluation of CDC7600 Processor
-void simulate_CDC7600(int test_data_eq)
+void simulate_CDC7600(int inst_count)
 {
     #pragma region Old idea for test data
 
@@ -504,29 +506,362 @@ void simulate_CDC7600(int test_data_eq)
 #pragma endregion
 #pragma endregion
 
-    // Processor Declarations
-
+    #pragma region A,B,X registers, and A,B,C contants. Probably wont need these
     // Instruction stack of 12 - 60-bit registers (allows for up to 48 previously fetched instructions to be readily available in the instruction stack).
     // 24 total registers - 5 Operand-Address pairs are used for read and 2 are used for write
-    int A[8]; // Address registers, paired with x register - 18 bits
-    int B[8]; // Index registers - 18 bits,  B0 is always 0
-    int x[8]; // Operand register paired with address register - 60 bits
+    //int A[8]; // Address registers, paired with x register - 18 bits
+    //int B[8]; // Index registers - 18 bits,  B0 is always 0
+    //int x[8]; // Operand register paired with address register - 60 bits
+    //B[0] = 0; // constant within the index resgister
+    //double A_Constant = 2.0; // constant stored in memory
+    //double B_Constant = 3.0; // constant stored in memory
+    //double C_Constant = 4.0; // constant stored in memory
+#pragma endregion
 
-    B[0] = 0; // constant within the index resgister
+    // Processor Declarations
+    int clock_pulses = 1; // Always start at clock #1
 
-    double A_Constant = 2.0; // constant stored in memory
-    double B_Constant = 3.0; // constant stored in memory
-    double C_Constant = 4.0; // constant stored in memory
+    bool foc = false; // First order conflict
+    bool soc = false; // Second order conflict
+    bool toc = false; // Third order conflict
 
-    int clock_pulses = 0;
-    Scoreboard SB;
+    // Iterate through each instruction within the "instructions" vector
+    for (int curr_inst = 0; curr_inst < inst_count; curr_inst++)
+    { 
+        // First check for 1st order conflict (hardware not available) if so stop pipeline and wait, if not then tag the used functional unit as reserved
+        // Then check for 1st order conflict (pt2) (destination in use) (Write after Write), stop pipeline again, if not then add those registers to a "in use" vector
+        // Next check sources (2nd order conflict) (Read after Write), are source registers the destination of a previously issued instruction which has not been completed?
+        // Finally check for 3rd order conflict (Write after Read)
+        // Resolve by delaying the clock
 
-    // Testing output
-    output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 10);
+        // 4 cycles to fetch, 6 cycles to store
+        // 6 cycles between words (unless branch, then just start a new word)
+
+        // If a functional unit is not available when issue time comes, then issue must be delayed unit unit ready, otherwise
+        //    - 2 between long --> long     
+        //    - 2 between long --> short
+        //    - 1 between short --> short
+        //    - 1 between short --> long
+
+        
+        // Check for 1st order conflict
+        if (check_foc(curr_inst))
+        {
+
+        }
+        else if (check_foc2(curr_inst))
+        {
+
+        }
+        else if (check_soc(curr_inst))
+        {
+
+        }
+        else if (check_toc(curr_inst))
+        {
+
+        }
+
+        // now you can fill table
+
+    }
+
+
+    //output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, 10);
 
     cout << "\n\n" << SB;
-
 }
+
+
+vector<string> get_sources(string inst)
+{
+    vector<string> yeet;
+    
+    return yeet;
+}
+
+vector<string> get_destination(string inst)
+{
+    vector<string> yeet;
+
+    return yeet;
+}
+
+// Check for first order conflicts
+bool check_foc(int inst_num)
+{    
+    // Check for conflict with Boolean unit
+    if (functional_unit_used[inst_num].find("Boolean") != std::string::npos && SB.Boolean.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Shift unit
+    if (functional_unit_used[inst_num].find("Shift") != std::string::npos && SB.Shift.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Long-Add unit
+    if (functional_unit_used[inst_num].find("Long-Add") != std::string::npos && SB.Fixed_Add.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Add unit
+    if (functional_unit_used[inst_num].find("FL Add") != std::string::npos && SB.Floating_Add.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Multiply unit
+    if (functional_unit_used[inst_num].find("FL Multiply") != std::string::npos && SB.Floating_Multiply.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Divide unit
+    if (functional_unit_used[inst_num].find("FL Divide") != std::string::npos && SB.Floating_Divide.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Normalize unit
+    if (functional_unit_used[inst_num].find("Normalize") != std::string::npos && SB.Normalize.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Pop_Count unit
+    if (functional_unit_used[inst_num].find("Pop_Count") != std::string::npos && SB.Pop_count.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Increment unit
+    if (functional_unit_used[inst_num].find("Increment") != std::string::npos && SB.Increment.busy_tag)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+// Check for first order conflicts
+bool check_foc2(int inst_num)
+{
+    // Check for conflict with Boolean unit
+    if (functional_unit_used[inst_num].find("Boolean") != std::string::npos && SB.Boolean.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Shift unit
+    if (functional_unit_used[inst_num].find("Shift") != std::string::npos && SB.Shift.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Long-Add unit
+    if (functional_unit_used[inst_num].find("Long-Add") != std::string::npos && SB.Fixed_Add.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Add unit
+    if (functional_unit_used[inst_num].find("FL Add") != std::string::npos && SB.Floating_Add.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Multiply unit
+    if (functional_unit_used[inst_num].find("FL Multiply") != std::string::npos && SB.Floating_Multiply.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Divide unit
+    if (functional_unit_used[inst_num].find("FL Divide") != std::string::npos && SB.Floating_Divide.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Normalize unit
+    if (functional_unit_used[inst_num].find("Normalize") != std::string::npos && SB.Normalize.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Pop_Count unit
+    if (functional_unit_used[inst_num].find("Pop_Count") != std::string::npos && SB.Pop_count.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Increment unit
+    if (functional_unit_used[inst_num].find("Increment") != std::string::npos && SB.Increment.busy_tag)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+// Check for first order conflicts
+bool check_soc(int inst_num)
+{
+    // Check for conflict with Boolean unit
+    if (functional_unit_used[inst_num].find("Boolean") != std::string::npos && SB.Boolean.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Shift unit
+    if (functional_unit_used[inst_num].find("Shift") != std::string::npos && SB.Shift.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Long-Add unit
+    if (functional_unit_used[inst_num].find("Long-Add") != std::string::npos && SB.Fixed_Add.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Add unit
+    if (functional_unit_used[inst_num].find("FL Add") != std::string::npos && SB.Floating_Add.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Multiply unit
+    if (functional_unit_used[inst_num].find("FL Multiply") != std::string::npos && SB.Floating_Multiply.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Divide unit
+    if (functional_unit_used[inst_num].find("FL Divide") != std::string::npos && SB.Floating_Divide.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Normalize unit
+    if (functional_unit_used[inst_num].find("Normalize") != std::string::npos && SB.Normalize.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Pop_Count unit
+    if (functional_unit_used[inst_num].find("Pop_Count") != std::string::npos && SB.Pop_count.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Increment unit
+    if (functional_unit_used[inst_num].find("Increment") != std::string::npos && SB.Increment.busy_tag)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+// Check for first order conflicts
+bool check_toc(int inst_num)
+{
+    // Check for conflict with Boolean unit
+    if (functional_unit_used[inst_num].find("Boolean") != std::string::npos && SB.Boolean.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Shift unit
+    if (functional_unit_used[inst_num].find("Shift") != std::string::npos && SB.Shift.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Long-Add unit
+    if (functional_unit_used[inst_num].find("Long-Add") != std::string::npos && SB.Fixed_Add.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Add unit
+    if (functional_unit_used[inst_num].find("FL Add") != std::string::npos && SB.Floating_Add.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Multiply unit
+    if (functional_unit_used[inst_num].find("FL Multiply") != std::string::npos && SB.Floating_Multiply.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with FL Divide unit
+    if (functional_unit_used[inst_num].find("FL Divide") != std::string::npos && SB.Floating_Divide.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Normalize unit
+    if (functional_unit_used[inst_num].find("Normalize") != std::string::npos && SB.Normalize.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Pop_Count unit
+    if (functional_unit_used[inst_num].find("Pop_Count") != std::string::npos && SB.Pop_count.busy_tag)
+    {
+        return true;
+    }
+
+
+    // Check for conflict with Increment unit
+    if (functional_unit_used[inst_num].find("Increment") != std::string::npos && SB.Increment.busy_tag)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 
 // Format and print the Table as rows are solved
 void output_table(vector<string> inst_word, vector<string> inst_sem, vector<string> inst_sem2, vector<string> inst_len, vector<int> issue, vector<int> start, vector<int> result, vector<int> unit_ready, vector<string> fetch, vector<string> store, vector<string> functional_unit_used, vector<string> registers_used, int rows_solved)
@@ -548,13 +883,14 @@ void output_table(vector<string> inst_word, vector<string> inst_sem, vector<stri
              << "       " << setw(3) << unit_ready[i] << "\t"
              << " " << setw(3) << fetch[i] << "\t"
              << " " << setw(3) << store[i] << "\t"
-             << setw(25) << functional_unit_used[i]
+             << setw(26) << functional_unit_used[i]
              << "   "<< setw(8) << registers_used[i];
 
         if (((i + 1) < rows_solved) && inst_word[i + 1] != "  ") { cout << "\n"; } // add newline between instruction words
     }
     cout << "\n============================================================================================================================================================";
 }
+
 
 // Convert decimal form of binary opcode to an octal number
 unsigned long to_octal(unsigned long binary_num)
@@ -570,14 +906,28 @@ unsigned long to_octal(unsigned long binary_num)
     return octalNumber;
 }
 
+// given a string of reigsters, return a list with no repeats
 string get_unique_registers(string dest, string op1, string op2)
 {
     string result = "";
     
     vector<string> temp_vector;
 
-    if (dest != "")
+    source_1.push_back(op1);
+    source_2.push_back(op2);
+    destination.push_back(dest);
+
+    if (dest != "" && dest[0] != 'K')
+    {
         temp_vector.push_back(dest);
+
+        if (dest[0] == 'A')
+        {
+            string extra_operand = "X";
+            extra_operand += dest[1];
+            temp_vector.push_back(extra_operand);
+        }
+    }
 
     if (op1 != "" && op1[0] != 'K')
     {
@@ -613,6 +963,7 @@ string get_unique_registers(string dest, string op1, string op2)
     return result;
 }
 
+
 // Functional units and functions
 #pragma region Functional Units and implementations
 
@@ -631,8 +982,9 @@ void BRANCH(int Opcode, string inst)
         {
             instruction_semantics.push_back("-");
             functional_unit_used.push_back("Branch, Increment, Boolean");
-            registers_used.push_back("-");
-            
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
+
             break;
         }
 
@@ -644,6 +996,7 @@ void BRANCH(int Opcode, string inst)
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Branch, Increment, Boolean");
+
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
@@ -739,7 +1092,7 @@ void BRANCH(int Opcode, string inst)
             }
 
             semantic_string = "Go to " + destination + " if " + operand1 + " != " + operand2;
-            instruction_semantics.push_back(semantic_string);
+            instruction_semantics.push_back("");
 
             functional_unit_used.push_back("Branch, Increment, Boolean");
 
@@ -1024,22 +1377,14 @@ void SHIFT(int Opcode, string inst)
         case 20: // Shift Xi LEFT jk places, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-            operand1 = destination;
+            operand1 = to_string(bitset<6>(inst.substr(9, 6)).to_ulong());
 
-            if (inst.length() <= 15)
-            {
-                operand2 = "j" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
-            }
-            else
-            {
-                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
-            }
-
-            semantic_string = destination + " = " + operand1 + " SHIFT LEFT " + operand2;
+            semantic_string = destination + " = " + destination + " SHIFT LEFT " + operand1;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
-            registers_used.push_back(destination);
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
         }
@@ -1047,22 +1392,14 @@ void SHIFT(int Opcode, string inst)
         case 21: // SHIFT Xi RIGHT jk places, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-            operand1 = destination;
+            operand1 = to_string(bitset<6>(inst.substr(9, 6)).to_ulong());
 
-            if (inst.length() <= 15)
-            {
-                operand2 = "j" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
-            }
-            else
-            {
-                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
-            }
-
-            semantic_string = destination + " = " + operand1 + " SHIFT RIGHT " + operand2;
+            semantic_string = destination + " = " + destination + " SHIFT RIGHT " + operand1;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
-            registers_used.push_back(destination);
+
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
         }
@@ -1070,18 +1407,9 @@ void SHIFT(int Opcode, string inst)
         case 22: // SHIFT Xi NOMINALLY LEFT Bj places, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-            operand1 = destination;
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
-            if (inst.length() <= 15)
-            {
-                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
-            }
-            else
-            {
-                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
-            }
-
-            semantic_string = destination + " = " + operand1 + " SHIFT NOM. LEFT " + operand2;
+            semantic_string = destination + " = " + destination + " SHIFT NOM. LEFT " + operand1;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
@@ -1093,18 +1421,9 @@ void SHIFT(int Opcode, string inst)
         case 23: // SHIFT Xi, NOMINALLY RIGHT Bj places, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
-            operand1 = destination;
+            operand1 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
 
-            if (inst.length() <= 15)
-            {
-                operand2 = "B" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
-            }
-            else
-            {
-                operand2 = "B" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
-            }
-
-            semantic_string = destination + " = " + operand1 + " SHIFT NOM. RIGHT " + operand2;
+            semantic_string = destination + " = " + destination + " SHIFT NOM. RIGHT " + operand1;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
@@ -1208,21 +1527,13 @@ void SHIFT(int Opcode, string inst)
         case 43: // FORM jk MASK in Xi, 3 clocks
         {
             destination = "X" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
+            operand1 = to_string(bitset<6>(inst.substr(9, 6)).to_ulong());
 
-            if (inst.length() <= 15)
-            {
-                operand2 = "j" + to_string(bitset<3>(inst.substr(12, 3)).to_ulong());
-            }
-            else
-            {
-                operand2 = "j" + to_string(bitset<18>(inst.substr(12, 18)).to_ulong());
-            }
-
-            semantic_string = "FORM " + operand2 + " MASK in " + destination;
+            semantic_string = "FORM " + operand1 + " MASK in " + destination;
             instruction_semantics.push_back(semantic_string);
 
             functional_unit_used.push_back("Shift");
-            registers_used.push_back(destination);
+            registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
             break;
         }
@@ -1499,7 +1810,7 @@ void DIVIDE(int Opcode, string inst)
             semantic_string = destination + " = " + operand1 + " / " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Divide");
+            functional_unit_used.push_back("FL Divide, Normalize");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
@@ -1523,7 +1834,7 @@ void DIVIDE(int Opcode, string inst)
             semantic_string = "Round " + destination + " = " + operand1 + " / " + operand2;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Divide");
+            functional_unit_used.push_back("FL Divide, Normalize");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
@@ -1535,7 +1846,7 @@ void DIVIDE(int Opcode, string inst)
             semantic_string = "Pass";
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Divide");
+            functional_unit_used.push_back("FL Divide, Normalize");
 
             registers_used.push_back(" ");
         }
@@ -1557,7 +1868,7 @@ void DIVIDE(int Opcode, string inst)
             semantic_string = "SUM 1's in " + operand2 + " to " + destination;
             instruction_semantics.push_back(semantic_string);
 
-            functional_unit_used.push_back("Divide");
+            functional_unit_used.push_back("FL Divide, Normalize");
 
             registers_used.push_back(get_unique_registers(destination, operand1, operand2));
 
@@ -2266,8 +2577,6 @@ void INCREMENT(int Opcode, string inst)
 
 
 
-
-
 #pragma region NORMALIZE Unit
 void NORMALIZE(int Opcode, string inst)
 {
@@ -2323,7 +2632,7 @@ void POP_COUNT(int Opcode, string inst)
         }
     }
 }
-#pragma endregion // What do
+#pragma endregion // What do, he didn't really answer this question.... Probably just not going to implement
 
 #pragma endregion
 
@@ -2348,10 +2657,10 @@ void POP_COUNT(int Opcode, string inst)
 // Floating point number is represented by fractional number (mantissa) multiplied by a base to a power (ie. +.1522 x10^3), normalizing means when the left most digit
 //  is non-zero (0.0523x10^4 is not normalized --> 0.523x10^3 to normalize). Anytime there is arithmetic we should normalize.
 
-// X and Y are vectors?? Meaning --> they are arrays of numbers
+// X and Y are vectors?? Meaning --> they are arrays of numbers  n =5 for this project
 // Structure of program should be loop
 
-// "Set B1 to 1" is used for index addressing because of the arrays
+// "Set B1 to 1" is used for index addressing because of the vectors
 
 // Some operations (like arithmetic) can use multiple functional units --> scoreboard will have to make sure all functional units are available. If not, then 1st order conflict
 
