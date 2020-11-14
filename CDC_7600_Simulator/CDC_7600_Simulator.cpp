@@ -33,6 +33,8 @@ public:
     int segment_Time; // # clock_pulses (from table)
     int execution_Time; // # clock_pulses (from table)
 
+    int instruction_num;
+
     // Sources and Destinations being used
     string S1; // source 1
     string S2; // source 2
@@ -59,6 +61,8 @@ public:
         S1 = "--";
         S2 = "--";
         D1 = "--";
+
+        instruction_num = -1;
     }
 
     void clear_src_dest()
@@ -66,6 +70,8 @@ public:
         S1 = "--";
         S2 = "--";
         D1 = "--";
+
+        instruction_num = -1;
     }
 };
 
@@ -102,19 +108,19 @@ public:
 // Overload << operator for Scoreboard Class
 ostream& operator<<(ostream& os, const Scoreboard& sb)
 {
-    os << "\n======================================== ScoreBoard ============================================";
-    os << "\n| Func Unit | busy_tag| idle | segment_time | execution_time | Source 1 | Source 2 | Destination";
-    os << "\n------------------------------------------------------------------------------------------------";
-    os << "\n" << sb.Boolean.funcUnit_name << "           " << sb.Boolean.busy_tag << "      " << sb.Boolean.idle << "\t    " << sb.Boolean.segment_Time << "\t\t    " << sb.Boolean.execution_Time << "\t\t  " << sb.Boolean.S1 << "\t     " << sb.Boolean.S2 << "\t\t " << sb.Boolean.D1;
-    os << "\n" << sb.Shift.funcUnit_name << "             " << sb.Shift.busy_tag << "      " << sb.Shift.idle << "\t    " << sb.Shift.segment_Time << "\t\t    " << sb.Shift.execution_Time << "\t\t  " << sb.Shift.S1 << "\t     " << sb.Shift.S2 << "\t\t " << sb.Shift.D1;
-    os << "\n" << sb.Fixed_Add.funcUnit_name << "         " << sb.Fixed_Add.busy_tag << "      " << sb.Fixed_Add.idle << "\t    " << sb.Fixed_Add.segment_Time << "\t\t    " << sb.Fixed_Add.execution_Time << "\t\t  " << sb.Fixed_Add.S1 << "\t     " << sb.Fixed_Add.S2 << "\t\t " << sb.Fixed_Add.D1;
-    os << "\n" << sb.Floating_Add.funcUnit_name << "      " << sb.Floating_Add.busy_tag << "      " << sb.Floating_Add.idle << "\t    " << sb.Floating_Add.segment_Time << "\t\t    " << sb.Floating_Add.execution_Time << "\t\t  " << sb.Floating_Add.S1 << "\t     " << sb.Floating_Add.S2 << "\t\t " << sb.Floating_Add.D1;;
-    os << "\n" << "Floating Mult" << "     " << sb.Floating_Multiply.busy_tag << "      " << sb.Floating_Multiply.idle << "\t    " << sb.Floating_Multiply.segment_Time << "\t\t    " << sb.Floating_Multiply.execution_Time << "\t\t  " << sb.Floating_Multiply.S1 << "\t     " << sb.Floating_Multiply.S2 << "\t\t " << sb.Floating_Multiply.D1;
-    os << "\n" << "Floating Div" << "      " << sb.Floating_Divide.busy_tag << "      " << sb.Floating_Divide.idle << "\t    " << sb.Floating_Divide.segment_Time << "\t\t    " << sb.Floating_Divide.execution_Time << "\t\t  " << sb.Floating_Divide.S1 << "\t     " << sb.Floating_Divide.S2 << "\t\t " << sb.Floating_Divide.D1;
-    os << "\n" << sb.Normalize.funcUnit_name << "         " << sb.Normalize.busy_tag << "      " << sb.Normalize.idle << "\t    " << sb.Normalize.segment_Time << "\t\t    " << sb.Normalize.execution_Time << "\t\t  " << sb.Normalize.S1 << "\t     " << sb.Normalize.S2 << "\t\t " << sb.Normalize.D1;
-    os << "\n" << sb.Pop_count.funcUnit_name << "         " << sb.Pop_count.busy_tag << "      " << sb.Pop_count.idle << "\t    " << sb.Pop_count.segment_Time << "\t\t    " << sb.Pop_count.execution_Time << "\t\t  " << sb.Pop_count.S1 << "\t     " << sb.Pop_count.S2 << "\t\t " << sb.Pop_count.D1;
-    os << "\n" << sb.Increment.funcUnit_name << "         " << sb.Increment.busy_tag << "      " << sb.Increment.idle << "\t    " << sb.Increment.segment_Time << "\t\t    " << sb.Increment.execution_Time << "\t\t  " << sb.Increment.S1 << "\t     " << sb.Increment.S2 << "\t\t " << sb.Increment.D1;
-    os << "\n================================================================================================";
+    os << "\n======================================== ScoreBoard =========================================================";
+    os << "\n| Func Unit | busy_tag| idle | segment_time | execution_time | Source 1 | Source 2 | Destination | Inst_Num |";
+    os << "\n-------------------------------------------------------------------------------------------------------------";
+    os << "\n" << sb.Boolean.funcUnit_name << "           " << sb.Boolean.busy_tag << "      " << sb.Boolean.idle << "\t    " << sb.Boolean.segment_Time << "\t\t    " << sb.Boolean.execution_Time << "\t\t  " << sb.Boolean.S1 << "\t     " << sb.Boolean.S2 << "\t\t " << sb.Boolean.D1 << "\t\t" << sb.Boolean.instruction_num;
+    os << "\n" << sb.Shift.funcUnit_name << "             " << sb.Shift.busy_tag << "      " << sb.Shift.idle << "\t    " << sb.Shift.segment_Time << "\t\t    " << sb.Shift.execution_Time << "\t\t  " << sb.Shift.S1 << "\t     " << sb.Shift.S2 << "\t\t " << sb.Shift.D1 << "\t\t" << sb.Shift.instruction_num;
+    os << "\n" << sb.Fixed_Add.funcUnit_name << "         " << sb.Fixed_Add.busy_tag << "      " << sb.Fixed_Add.idle << "\t    " << sb.Fixed_Add.segment_Time << "\t\t    " << sb.Fixed_Add.execution_Time << "\t\t  " << sb.Fixed_Add.S1 << "\t     " << sb.Fixed_Add.S2 << "\t\t " << sb.Fixed_Add.D1 << "\t\t" << sb.Fixed_Add.instruction_num;
+    os << "\n" << sb.Floating_Add.funcUnit_name << "      " << sb.Floating_Add.busy_tag << "      " << sb.Floating_Add.idle << "\t    " << sb.Floating_Add.segment_Time << "\t\t    " << sb.Floating_Add.execution_Time << "\t\t  " << sb.Floating_Add.S1 << "\t     " << sb.Floating_Add.S2 << "\t\t " << sb.Floating_Add.D1 << "\t\t" << sb.Floating_Add.instruction_num;
+    os << "\n" << "Floating Mult" << "     " << sb.Floating_Multiply.busy_tag << "      " << sb.Floating_Multiply.idle << "\t    " << sb.Floating_Multiply.segment_Time << "\t\t    " << sb.Floating_Multiply.execution_Time << "\t\t  " << sb.Floating_Multiply.S1 << "\t     " << sb.Floating_Multiply.S2 << "\t\t " << sb.Floating_Multiply.D1 << "\t\t" << sb.Floating_Multiply.instruction_num;
+    os << "\n" << "Floating Div" << "      " << sb.Floating_Divide.busy_tag << "      " << sb.Floating_Divide.idle << "\t    " << sb.Floating_Divide.segment_Time << "\t\t    " << sb.Floating_Divide.execution_Time << "\t\t  " << sb.Floating_Divide.S1 << "\t     " << sb.Floating_Divide.S2 << "\t\t " << sb.Floating_Divide.D1 << "\t\t" << sb.Floating_Divide.instruction_num;
+    os << "\n" << sb.Normalize.funcUnit_name << "         " << sb.Normalize.busy_tag << "      " << sb.Normalize.idle << "\t    " << sb.Normalize.segment_Time << "\t\t    " << sb.Normalize.execution_Time << "\t\t  " << sb.Normalize.S1 << "\t     " << sb.Normalize.S2 << "\t\t " << sb.Normalize.D1 << "\t\t" << sb.Normalize.instruction_num;
+    os << "\n" << sb.Pop_count.funcUnit_name << "         " << sb.Pop_count.busy_tag << "      " << sb.Pop_count.idle << "\t    " << sb.Pop_count.segment_Time << "\t\t    " << sb.Pop_count.execution_Time << "\t\t  " << sb.Pop_count.S1 << "\t     " << sb.Pop_count.S2 << "\t\t " << sb.Pop_count.D1 << "\t\t" << sb.Pop_count.instruction_num;
+    os << "\n" << sb.Increment.funcUnit_name << "         " << sb.Increment.busy_tag << "      " << sb.Increment.idle << "\t    " << sb.Increment.segment_Time << "\t\t    " << sb.Increment.execution_Time << "\t\t  " << sb.Increment.S1 << "\t     " << sb.Increment.S2 << "\t\t " << sb.Increment.D1 << "\t\t" << sb.Increment.instruction_num;
+    os << "\n======================================== ScoreBoard =========================================================";
 
     return os;
 }
@@ -599,26 +605,25 @@ void simulate_CDC7600(int inst_count)
                 else if (instruction_word[curr_inst - 4] != "  ") { clock_pulses = issue[curr_inst - 4] + 6; }
             }
 
-            // Get instruction functional unit(s)
-            indiv_functional_unit_used.push_back(get_indiv_fu(curr_inst));
+            indiv_functional_unit_used.push_back(get_indiv_fu(curr_inst)); // Get instruction functional unit(s)
 
-            // now that default issue entry is made, check to see if functional units are free now and remove their busy tags
-            check_func_unit_complete(curr_inst, clock_pulses);
+            check_func_unit_complete(curr_inst, clock_pulses);  // now that default issue entry is made, check to see if functional units are free now and remove their busy tags
 
-            reserve_units(curr_inst);
+
             // Check for 1st order conflict, this can modify the issue entry
             if (check_foc(curr_inst))
             {
-                // find where the conflict is >_>
-
+                // find where the conflict is >_> and change issue entry as needed
+                // Need to check against all busy hardware for worst-case-senario
+                clock_pulses = resolve_foc_conflict(curr_inst);
             }
-            else
-            {
 
-            }
+            reserve_units(curr_inst); // Only allowed to reserve units once foc is resolved or non-existent
             
-            issue.push_back(clock_pulses);
+            issue.push_back(clock_pulses);  // create issue entry based on above logic
             
+
+            // Check for 1st order conflict pt.2 (destination in use) (Write after Write). This will affect the start entry
             if (check_foc2(curr_inst))
             {
 
@@ -639,7 +644,6 @@ void simulate_CDC7600(int inst_count)
 
             // Fill start entry, this affects a lot
             start.push_back(clock_pulses);
-
 
 
 
@@ -1182,46 +1186,56 @@ void reserve_units(int inst_num)
     if (temp[4]) // FL Multiply
     {
         SB.Floating_Multiply.busy_tag = true;
+        SB.Floating_Multiply.instruction_num = inst_num;
     }
     
+
     if (temp[3]) // FL Add
     {
         SB.Floating_Add.busy_tag = true;
+        SB.Floating_Add.instruction_num = inst_num;
     }
     
     if (temp[6]) // Normalize or Branch
     {
         SB.Normalize.busy_tag = true;
+        SB.Normalize.instruction_num = inst_num;
     }
     
     if (temp[5]) // Divide 
     {
         SB.Floating_Divide.busy_tag = true;
+        SB.Floating_Divide.instruction_num = inst_num;
     }
     
     if (temp[0]) // Boolean
     {
         SB.Boolean.busy_tag = true;
+        SB.Boolean.instruction_num = inst_num;
     }
     
     if (temp[1]) // Shift
     {
         SB.Shift.busy_tag = true;
+        SB.Shift.instruction_num = inst_num;
     }
     
     if (temp[2]) // Fixed Add
     {
         SB.Fixed_Add.busy_tag = true;
+        SB.Fixed_Add.instruction_num = inst_num;
     }
     
     if (temp[7]) // Pop_Count
     {
         SB.Pop_count.busy_tag = true;
+        SB.Pop_count.instruction_num = inst_num;
     }
     
     if (temp[8]) // Increment
     {
         SB.Increment.busy_tag = true;
+        SB.Increment.instruction_num = inst_num;
     }
 }
 
@@ -1289,16 +1303,150 @@ void clear_func_unit(int inst_num)
 // Check to see if any functional units above the current instruction have compelted and reset their busy tags / holds on data
 void check_func_unit_complete(int inst_num, int curr_clock)
 {
-    for (int i = inst_num; i > 0; i--)
+    // Go through SB and check any func unit that has busy tag. if busy, then check its unit_ready against the current clock, if unit ready < curr clock then clear the busy tag / info
+
+    if (SB.Boolean.busy_tag && (unit_ready[SB.Boolean.instruction_num] < curr_clock)) // Check Boolean
     {
-        if (functional_unit_used[inst_num] == functional_unit_used[i]) // Possible conflict bc similar instruction
+        clear_func_unit(SB.Boolean.instruction_num);
+    }
+
+    if (SB.Shift.busy_tag && (unit_ready[SB.Shift.instruction_num] < curr_clock)) // Check Shift
+    {
+        clear_func_unit(SB.Shift.instruction_num);
+    }
+
+    if (SB.Fixed_Add.busy_tag && (unit_ready[SB.Fixed_Add.instruction_num] < curr_clock)) // Check Fixed Add
+    {
+        clear_func_unit(SB.Fixed_Add.instruction_num);
+    }
+
+    if (SB.Floating_Add.busy_tag && (unit_ready[SB.Floating_Add.instruction_num] < curr_clock)) // Check Floating Add
+    {
+        clear_func_unit(SB.Floating_Add.instruction_num);
+    }
+
+    if (SB.Floating_Multiply.busy_tag && (unit_ready[SB.Floating_Multiply.instruction_num] < curr_clock)) // Check Floating Multiply
+    {
+        clear_func_unit(SB.Floating_Multiply.instruction_num);
+    }
+
+    if (SB.Floating_Divide.busy_tag && (unit_ready[SB.Floating_Divide.instruction_num] < curr_clock)) // Check Floating Divide
+    {
+        clear_func_unit(SB.Floating_Divide.instruction_num);
+    }
+
+    if (SB.Normalize.busy_tag && (unit_ready[SB.Normalize.instruction_num] < curr_clock)) // Check Normalize
+    {
+        clear_func_unit(SB.Normalize.instruction_num);
+    }
+
+    if (SB.Pop_count.busy_tag && (unit_ready[SB.Pop_count.instruction_num] < curr_clock)) // Check Pop Count
+    {
+        clear_func_unit(SB.Pop_count.instruction_num);
+    }
+
+    if (SB.Increment.busy_tag && (unit_ready[SB.Increment.instruction_num] < curr_clock)) // Check Increment
+    {
+        clear_func_unit(SB.Increment.instruction_num);
+    }
+
+
+    // this only checks for similar instructions....
+    //for (int i = inst_num; i > 0; i--)
+    //{
+    //    if (functional_unit_used[inst_num] == functional_unit_used[i]) // Possible conflict bc similar instruction
+    //    {
+    //        if (unit_ready[i-1] < curr_clock) // then that instruction is complete
+    //        {
+    //            clear_func_unit(i); // Clear its busy_tag and sources, destination
+    //        }
+    //    }
+    //}
+}
+
+// Find where first order conflict is and modify the issue entry as needed
+int resolve_foc_conflict(int inst_num)
+{
+    int worst_clock_senario = 0;
+
+    vector<bool> temp_funcs_used = indiv_functional_unit_used[inst_num];
+
+    // Find where the conflicts are
+    // Look through scoreboard to find which busy tags collide
+    // Check all functional units to incase multiple are used
+    if ((temp_funcs_used[0] == SB.Boolean.busy_tag) && (SB.Boolean.busy_tag == true)) // Boolean
+    {
+        if (worst_clock_senario < unit_ready[SB.Boolean.instruction_num])
         {
-            if (unit_ready[i-1] < curr_clock) // then that instruction is complete
-            {
-                clear_func_unit(i); // Clear its busy_tag and sources, destination
-            }
+            worst_clock_senario = unit_ready[SB.Boolean.instruction_num];
         }
     }
+
+    if ((temp_funcs_used[1] == SB.Shift.busy_tag) && (SB.Shift.busy_tag == true)) // Shift
+    {
+        if (worst_clock_senario < unit_ready[SB.Shift.instruction_num])
+        {
+            worst_clock_senario = unit_ready[SB.Shift.instruction_num];
+        }
+    }
+
+    if ((temp_funcs_used[2] == SB.Fixed_Add.busy_tag) && (SB.Fixed_Add.busy_tag == true)) // Fixed Add
+    {
+        if (worst_clock_senario < unit_ready[SB.Fixed_Add.instruction_num])
+        {
+            worst_clock_senario = unit_ready[SB.Fixed_Add.instruction_num];
+        }
+    }
+
+    if ((temp_funcs_used[3] == SB.Floating_Add.busy_tag) && (SB.Floating_Add.busy_tag == true)) // Floating Add
+    {
+        if (worst_clock_senario < unit_ready[SB.Floating_Add.instruction_num])
+        {
+            worst_clock_senario = unit_ready[SB.Floating_Add.instruction_num];
+        }
+    }
+
+    if ((temp_funcs_used[4] == SB.Floating_Multiply.busy_tag) && (SB.Floating_Multiply.busy_tag == true)) // Floating Multiply
+    {
+        if (worst_clock_senario < unit_ready[SB.Floating_Multiply.instruction_num])
+        {
+            worst_clock_senario = unit_ready[SB.Floating_Multiply.instruction_num];
+        }
+    }
+
+    if ((temp_funcs_used[5] == SB.Floating_Divide.busy_tag) && (SB.Floating_Divide.busy_tag == true)) // Floating Divide
+    {
+        if (worst_clock_senario < unit_ready[SB.Floating_Divide.instruction_num])
+        {
+            worst_clock_senario = unit_ready[SB.Floating_Divide.instruction_num];
+        }
+    }
+
+    if ((temp_funcs_used[6] == SB.Normalize.busy_tag) && (SB.Normalize.busy_tag == true)) // Normalize
+    {
+        if (worst_clock_senario < unit_ready[SB.Normalize.instruction_num])
+        {
+            worst_clock_senario = unit_ready[SB.Normalize.instruction_num];
+        }
+    }
+
+    if ((temp_funcs_used[7] == SB.Pop_count.busy_tag) && (SB.Pop_count.busy_tag == true)) // Pop Count
+    {
+        if (worst_clock_senario < unit_ready[SB.Pop_count.instruction_num])
+        {
+            worst_clock_senario = unit_ready[SB.Pop_count.instruction_num];
+        }
+    }
+
+    if ((temp_funcs_used[8] == SB.Increment.busy_tag) && (SB.Increment.busy_tag == true)) // Increment
+    {
+        if (worst_clock_senario < unit_ready[SB.Increment.instruction_num])
+        {
+            worst_clock_senario = unit_ready[SB.Increment.instruction_num];
+        }
+    }
+
+    return worst_clock_senario;
 }
 
 // Format and print the Table as rows are solved
@@ -1348,9 +1496,30 @@ unsigned long to_octal(unsigned long binary_num)
 string get_unique_registers(string dest, string op1, string op2)
 {
     string result = "";
-    
     vector<string> temp_vector;
 
+
+    // This section is for sources/destinations within the scoreboard
+    if ((dest != "") && (dest[0] != 'K') && dest[0] != 'B')
+    {
+        destination.push_back(dest);
+    }
+
+    if ((op1 != "") && (op1[0] != 'K') && op1[0] != 'B')
+    {
+        source_1.push_back(op1);
+    }
+
+    if ((op2 != "") && (op2[0] != 'K') && op2[0] != 'B')
+    {
+        source_2.push_back(op2);
+    }
+    else if (op2[0] == 'K')
+    {
+        source_2.push_back("--");
+    }
+
+    // this section is for registers entry in the table
     if (dest != "" && dest[0] != 'K')
     {
         temp_vector.push_back(dest);
@@ -1360,11 +1529,6 @@ string get_unique_registers(string dest, string op1, string op2)
             string extra_operand = "X";
             extra_operand += dest[1];
             temp_vector.push_back(extra_operand);
-        }
-        
-        if (dest[0] != 'B')
-        {
-            destination.push_back(dest);
         }
     }
 
@@ -1378,13 +1542,7 @@ string get_unique_registers(string dest, string op1, string op2)
             extra_operand += op1[1];
             temp_vector.push_back(extra_operand);
         }
-
-        if (op1[0] != 'B')
-        {
-            source_1.push_back(op1);
-        }
     }
-
 
     if (op2 != "" && op2[0] != 'K')
     {
@@ -1396,13 +1554,6 @@ string get_unique_registers(string dest, string op1, string op2)
             extra_operand += op2[1];
             temp_vector.push_back(extra_operand);
         }
-    }
-
-    if (op2 != "" && op2[0] != 'B')
-    {
-        if(op2[0] == 'K') { source_2.push_back("--"); }
-
-        source_2.push_back(op2);
     }
     
     sort(temp_vector.begin(), temp_vector.end());
