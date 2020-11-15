@@ -24,3 +24,29 @@ Y = AX^2 + BX + C (with vectors) (Test Data #3) (example from class, word doc)
 
 
 Op-code is in Octals!!!
+
+
+
+Y = AX^2 + BX (with vectors) (Test Data #3)
+
+101000 001 001 000000000000000001  increment(50) A1 = A1 + K1              Fetch X                N1
+101000 010 010 000000000000000010  increment(50) A2 = A2 + K2              Fetch A
+ 
+101000 011 011 000000000000000011  increment(50) A3 = A3 + K3              Fetch B                 N2
+110001 001 000 000000000000000001  increment(61) B1 = B0 + 1               Set B1 to 1 --> B0 is always 0
+
+110001 010 000 000000000000000101  increment(61) B2 = B0 + K5              Set B2 to vector length --> B0 is always 0  N3
+
+
+100000 000 001 001                 FL_multiply(40)  X0 = X1 * X1           Form X^2                 
+100000 110 000 010                 FL_multiply(40)  X6 = X0 * X2           Form AX^2
+
+100000 000 011 001                 FL_multiply(40)  X0 = X3 * X1           Form BX                N4
+101100 001 001 001                 increment(54) A1 = A1 + B1              Fetch next X           
+110111 010 010 001                 increment(67) B2 = B2 - B1              Decrement B2                   
+011000 101 110 000                 FL_add(30) X5 = X6 + X0                 Form AX^2 + BX
+
+011000 111 101 100                 FL_add(30) X7 = X5 + X4                 Form Y               N5
+101100 111 111 001                 increment(54) A7 = A7 + B1              Store Y
+000101 010 000 000000000000000100  Branch(05)    Go to N4 if B2 != 0(B0) 
+												 Go to K if Bi != Bj
