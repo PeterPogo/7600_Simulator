@@ -1862,10 +1862,6 @@ int resolve_foc_conflict(int inst_num)
     // Find where the conflicts are
     // Look through scoreboard to find which busy tags collide
     // Check all functional units to incase multiple are used
-
-    // This needs to use segement times instead of referencing the table entries...
-
-
     if ((temp_funcs_used[0] == SB.Boolean.busy_tag) && (SB.Boolean.busy_tag == true)) // Boolean
     {
         if (worst_clock_scenario < unit_ready[SB.Boolean.instruction_num])
