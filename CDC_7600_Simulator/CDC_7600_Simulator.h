@@ -35,6 +35,7 @@ void clear_func_unit(int inst_num);
 int resolve_foc_conflict(int inst_num);
 int resolve_foc2_conflict(int inst_num);
 
+int resolve_soc_conflict(int inst_num);
 
 // functional units
 void BRANCH(int Opcode, string inst);

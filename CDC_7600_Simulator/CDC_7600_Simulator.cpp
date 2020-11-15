@@ -67,9 +67,9 @@ public:
 
     void clear_src_dest()
     {
-        S1 = "--";
-        S2 = "--";
-        D1 = "--";
+       // S1 = "--";
+       // S2 = "--";
+       // D1 = "--";
 
         instruction_num = -1;
     }
@@ -628,8 +628,6 @@ void simulate_CDC7600(int inst_count)
             {
                 start_clock = clock_pulses;
             }
-
-            reserve_units(curr_inst); // Only allowed to reserve units once foc is resolved or non-existent
             
             issue.push_back(clock_pulses);  // create issue entry based on above logic
 
@@ -637,6 +635,9 @@ void simulate_CDC7600(int inst_count)
             if (check_soc(curr_inst))
             {
                 // each instructions' registers are in vectors source_1, source_2, destination. Need to get pairs X,A for each if they are not unique. Basically will be looking for 6 values within SB
+                int temp_clock = resolve_soc_conflict(curr_inst);
+
+                if (temp_clock > start_clock) { start_clock = temp_clock; }
             }
 
             // Finally check for 3rd order conflict (Write after read)
@@ -644,6 +645,10 @@ void simulate_CDC7600(int inst_count)
             {
 
             }
+
+            cout << "\n\nBEFORE RESERVE" << SB;
+
+            reserve_units(curr_inst); // Only allowed to reserve units once foc is resolved or non-existent
 
             // Only after passing through all the conflict checks may this value be changed or not
             start.push_back(start_clock);
@@ -678,6 +683,10 @@ void simulate_CDC7600(int inst_count)
         
         cout << "\n\n" << SB;
         output_table(instruction_word, instruction_semantics, instruction_semantics_2, instruction_length, issue, start, result, unit_ready, fetch, store, functional_unit_used, registers_used, curr_inst+1);
+        cout << "\n\n\n";
+
+        string yeet; 
+        cin >> yeet;
         sleep_for(1s);
     }
 }
@@ -942,68 +951,441 @@ bool check_foc2(int inst_num)
 // Check for first order conflicts
 bool check_soc(int inst_num)
 {
-    // Check for conflict with Boolean unit
-    if (functional_unit_used[inst_num].find("Boolean") != std::string::npos && SB.Boolean.busy_tag)
+    // Read after Write - need to check both sources against all active destinations
+    // Destinations registers can be in the form Ax or Xx or Bx but not Kx
+
+    // The functional units for these cases do not need to be in use, which means we'll need to check against all entries that are less than the given clock
+    
+
+    // Special case for Fetch and store ops bc they are tricky...
+    for (int i = inst_num-1; i > 0; i--)
     {
-        return true;
+        if (check_fetch_op(i))
+        {
+            if (source_1[inst_num][1] == destination[i][1]) // are the #s the same?
+            {
+                if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[i][0] == 'A' || destination[i][0] == 'X')) // are they actually the same number, X's and A's come in pairs
+                {
+                    if (issue[inst_num] < stoi(fetch[i]))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        else if (check_store_op(i))
+        {
+            if (source_1[inst_num][1] == destination[i][1]) // are the #s the same?
+            {
+                if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[i][0] == 'A' || destination[i][0] == 'X')) // are they actually the same number, X's and A's come in pairs
+                {
+                    if (issue[inst_num] < stoi(store[i]))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    // Otherwise we only need to check against the current operators in the scoreboard regardless of busy tag...
+
+
+    // Boolean unit
+    if (source_1[inst_num][1] == SB.Boolean.D1[1]) // Do the #s match?
+    {
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Boolean.instruction_num][0] == 'A' || destination[SB.Boolean.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Boolean.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Boolean.D1)
+            {
+                if (result[SB.Boolean.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    if (source_2[inst_num][1] == SB.Boolean.D1[1]) // Do the #s match?
+    {
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Boolean.instruction_num][0] == 'A' || destination[SB.Boolean.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Boolean.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Boolean.D1)
+            {
+                if (result[SB.Boolean.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    // Shift unit
+    if (source_1[inst_num][1] == SB.Shift.D1[1]) // Do the #s match?
+    {
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Shift.instruction_num][0] == 'A' || destination[SB.Shift.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Shift.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Shift.D1)
+            {
+                if (result[SB.Shift.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (source_2[inst_num][1] == SB.Shift.D1[1]) // Do the #s match?
+    {
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Shift.instruction_num][0] == 'A' || destination[SB.Shift.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Shift.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Shift.D1)
+            {
+                if (result[SB.Shift.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
 
-    // Check for conflict with Shift unit
-    if (functional_unit_used[inst_num].find("Shift") != std::string::npos && SB.Shift.busy_tag)
+    // Fixed_Add unit
+    if (source_1[inst_num][1] == SB.Fixed_Add.D1[1]) // Do the #s match?
     {
-        return true;
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Fixed_Add.instruction_num][0] == 'A' || destination[SB.Fixed_Add.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Fixed_Add.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Fixed_Add.D1)
+            {
+                if (result[SB.Fixed_Add.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (source_2[inst_num][1] == SB.Fixed_Add.D1[1]) // Do the #s match?
+    {
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Fixed_Add.instruction_num][0] == 'A' || destination[SB.Fixed_Add.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Fixed_Add.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Fixed_Add.D1)
+            {
+                if (result[SB.Fixed_Add.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
 
-    // Check for conflict with Long-Add unit
-    if (functional_unit_used[inst_num].find("Long-Add") != std::string::npos && SB.Fixed_Add.busy_tag)
+    // Floating_Add unit
+    if (source_1[inst_num][1] == SB.Floating_Add.D1[1]) // Do the #s match?
     {
-        return true;
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Floating_Add.instruction_num][0] == 'A' || destination[SB.Floating_Add.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Floating_Add.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Floating_Add.D1)
+            {
+                if (result[SB.Floating_Add.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (source_2[inst_num][1] == SB.Floating_Add.D1[1]) // Do the #s match?
+    {
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Floating_Add.instruction_num][0] == 'A' || destination[SB.Floating_Add.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Floating_Add.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Floating_Add.D1)
+            {
+                if (result[SB.Floating_Add.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
 
-    // Check for conflict with FL Add unit
-    if (functional_unit_used[inst_num].find("FL Add") != std::string::npos && SB.Floating_Add.busy_tag)
+    // Floating_Multiply unit
+    if (source_1[inst_num][1] == SB.Floating_Multiply.D1[1]) // Do the #s match?
     {
-        return true;
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Floating_Multiply.instruction_num][0] == 'A' || destination[SB.Floating_Multiply.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Floating_Multiply.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Floating_Multiply.D1)
+            {
+                if (result[SB.Floating_Multiply.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (source_2[inst_num][1] == SB.Floating_Multiply.D1[1]) // Do the #s match?
+    {
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Floating_Multiply.instruction_num][0] == 'A' || destination[SB.Floating_Multiply.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Floating_Multiply.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Floating_Multiply.D1)
+            {
+                if (result[SB.Floating_Multiply.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
 
-    // Check for conflict with FL Multiply unit
-    if (functional_unit_used[inst_num].find("FL Multiply") != std::string::npos && SB.Floating_Multiply.busy_tag)
+    // Floating_Divide unit
+    if (source_1[inst_num][1] == SB.Floating_Divide.D1[1]) // Do the #s match?
     {
-        return true;
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Floating_Divide.instruction_num][0] == 'A' || destination[SB.Floating_Divide.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Floating_Divide.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Floating_Divide.D1)
+            {
+                if (result[SB.Floating_Divide.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (source_2[inst_num][1] == SB.Floating_Divide.D1[1]) // Do the #s match?
+    {
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Floating_Divide.instruction_num][0] == 'A' || destination[SB.Floating_Divide.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Floating_Divide.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Floating_Divide.D1)
+            {
+                if (result[SB.Floating_Divide.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
 
-    // Check for conflict with FL Divide unit
-    if (functional_unit_used[inst_num].find("FL Divide") != std::string::npos && SB.Floating_Divide.busy_tag)
+    // Normalize unit
+    if (source_1[inst_num][1] == SB.Normalize.D1[1]) // Do the #s match?
     {
-        return true;
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Normalize.instruction_num][0] == 'A' || destination[SB.Normalize.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Normalize.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Normalize.D1)
+            {
+                if (result[SB.Normalize.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (source_2[inst_num][1] == SB.Normalize.D1[1]) // Do the #s match?
+    {
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Normalize.instruction_num][0] == 'A' || destination[SB.Normalize.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Normalize.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Normalize.D1)
+            {
+                if (result[SB.Normalize.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
 
-    // Check for conflict with Normalize unit
-    if (functional_unit_used[inst_num].find("Normalize") != std::string::npos && SB.Normalize.busy_tag)
+    // Pop_count unit
+    if (source_1[inst_num][1] == SB.Pop_count.D1[1]) // Do the #s match?
     {
-        return true;
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Pop_count.instruction_num][0] == 'A' || destination[SB.Pop_count.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Pop_count.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Pop_count.D1)
+            {
+                if (result[SB.Pop_count.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (source_2[inst_num][1] == SB.Pop_count.D1[1]) // Do the #s match?
+    {
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Pop_count.instruction_num][0] == 'A' || destination[SB.Pop_count.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Pop_count.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Pop_count.D1)
+            {
+                if (result[SB.Pop_count.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
 
-    // Check for conflict with Pop_Count unit
-    if (functional_unit_used[inst_num].find("Pop_Count") != std::string::npos && SB.Pop_count.busy_tag)
+    // Increment unit
+    if (source_1[inst_num][1] == SB.Increment.D1[1]) // Do the #s match?
     {
-        return true;
+        if ((source_1[inst_num][0] == 'A' || source_1[inst_num][0] == 'X') && (destination[SB.Increment.instruction_num][0] == 'A' || destination[SB.Increment.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Increment.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_1[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_1[inst_num] == SB.Increment.D1)
+            {
+                if (result[SB.Increment.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
-
-    // Check for conflict with Increment unit
-    if (functional_unit_used[inst_num].find("Increment") != std::string::npos && SB.Increment.busy_tag)
+    if (source_2[inst_num][1] == SB.Increment.D1[1]) // Do the #s match?
     {
-        return true;
+        if ((source_2[inst_num][0] == 'A' || source_2[inst_num][0] == 'X') && (destination[SB.Increment.instruction_num][0] == 'A' || destination[SB.Increment.instruction_num][0] == 'X')) // bc these come in pairs
+        {
+            if (result[SB.Increment.instruction_num] > issue[inst_num])
+            {
+                return true;
+            }
+        }
+        else if (source_2[inst_num][0] == 'B') // branch instructions modify these registers
+        {
+            if (source_2[inst_num] == SB.Increment.D1)
+            {
+                if (result[SB.Increment.instruction_num] > issue[inst_num])
+                {
+                    return true;
+                }
+            }
+        }
     }
 
+    // If no conflicts then return false
     return false;
 }
 
@@ -1559,6 +1941,395 @@ int resolve_foc_conflict(int inst_num)
 
 // 1st order conflict pt.2 (destination in use) (Write after Write). This will affect the start entry
 int resolve_foc2_conflict(int inst_num)
+{
+    // Find where the conflict is
+    // Look through scoreboard to find where the destinations collide (there should only be 1 place)
+    // Destinations registers can be in the form Ax or Xx or Bx but not Kx
+
+    if (SB.Boolean.busy_tag) // Check Boolean
+    {
+        if (destination[inst_num][1] == SB.Boolean.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Boolean.instruction_num))
+                {
+                    return stoi(fetch[SB.Boolean.instruction_num]);
+                }
+                else if (check_store_op(SB.Boolean.instruction_num))
+                {
+                    return stoi(store[SB.Boolean.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Boolean.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Boolean.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Boolean.instruction_num))
+                    {
+                        return stoi(fetch[SB.Boolean.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Boolean.instruction_num))
+                    {
+                        return stoi(store[SB.Boolean.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Boolean.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    if (SB.Shift.busy_tag) // Check Shift
+    {
+        if (destination[inst_num][1] == SB.Shift.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Shift.instruction_num))
+                {
+                    return stoi(fetch[SB.Shift.instruction_num]);
+                }
+                else if (check_store_op(SB.Shift.instruction_num))
+                {
+                    return stoi(store[SB.Shift.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Shift.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Shift.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Shift.instruction_num))
+                    {
+                        return stoi(fetch[SB.Shift.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Shift.instruction_num))
+                    {
+                        return stoi(store[SB.Shift.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Shift.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    if (SB.Fixed_Add.busy_tag) // Check Fixed Add
+    {
+        if (destination[inst_num][1] == SB.Fixed_Add.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Fixed_Add.instruction_num))
+                {
+                    return stoi(fetch[SB.Fixed_Add.instruction_num]);
+                }
+                else if (check_store_op(SB.Fixed_Add.instruction_num))
+                {
+                    return stoi(store[SB.Fixed_Add.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Fixed_Add.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Fixed_Add.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Fixed_Add.instruction_num))
+                    {
+                        return stoi(fetch[SB.Fixed_Add.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Fixed_Add.instruction_num))
+                    {
+                        return stoi(store[SB.Fixed_Add.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Fixed_Add.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    if (SB.Floating_Add.busy_tag) // Check Floating_Add
+    {
+        if (destination[inst_num][1] == SB.Floating_Add.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Floating_Add.instruction_num))
+                {
+                    return stoi(fetch[SB.Floating_Add.instruction_num]);
+                }
+                else if (check_store_op(SB.Floating_Add.instruction_num))
+                {
+                    return stoi(store[SB.Floating_Add.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Floating_Add.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Floating_Add.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Floating_Add.instruction_num))
+                    {
+                        return stoi(fetch[SB.Floating_Add.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Floating_Add.instruction_num))
+                    {
+                        return stoi(store[SB.Floating_Add.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Floating_Add.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    if (SB.Floating_Multiply.busy_tag) // Check Floating_Multiply
+    {
+        if (destination[inst_num][1] == SB.Floating_Multiply.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Floating_Multiply.instruction_num))
+                {
+                    return stoi(fetch[SB.Floating_Multiply.instruction_num]);
+                }
+                else if (check_store_op(SB.Floating_Multiply.instruction_num))
+                {
+                    return stoi(store[SB.Floating_Multiply.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Floating_Multiply.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Floating_Multiply.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Floating_Multiply.instruction_num))
+                    {
+                        return stoi(fetch[SB.Floating_Multiply.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Floating_Multiply.instruction_num))
+                    {
+                        return stoi(store[SB.Floating_Multiply.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Floating_Multiply.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    if (SB.Floating_Divide.busy_tag) // Check Floating_Divide
+    {
+        if (destination[inst_num][1] == SB.Floating_Divide.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Floating_Divide.instruction_num))
+                {
+                    return stoi(fetch[SB.Floating_Divide.instruction_num]);
+                }
+                else if (check_store_op(SB.Floating_Divide.instruction_num))
+                {
+                    return stoi(store[SB.Floating_Divide.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Floating_Divide.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Floating_Divide.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Floating_Divide.instruction_num))
+                    {
+                        return stoi(fetch[SB.Floating_Divide.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Floating_Divide.instruction_num))
+                    {
+                        return stoi(store[SB.Floating_Divide.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Floating_Divide.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    if (SB.Normalize.busy_tag) // Check Normalize
+    {
+        if (destination[inst_num][1] == SB.Normalize.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Normalize.instruction_num))
+                {
+                    return stoi(fetch[SB.Normalize.instruction_num]);
+                }
+                else if (check_store_op(SB.Normalize.instruction_num))
+                {
+                    return stoi(store[SB.Normalize.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Normalize.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Normalize.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Normalize.instruction_num))
+                    {
+                        return stoi(fetch[SB.Normalize.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Normalize.instruction_num))
+                    {
+                        return stoi(store[SB.Normalize.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Normalize.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    if (SB.Pop_count.busy_tag) // Check Pop_Count
+    {
+        if (destination[inst_num][1] == SB.Pop_count.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Pop_count.instruction_num))
+                {
+                    return stoi(fetch[SB.Pop_count.instruction_num]);
+                }
+                else if (check_store_op(SB.Pop_count.instruction_num))
+                {
+                    return stoi(store[SB.Pop_count.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Pop_count.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Pop_count.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Pop_count.instruction_num))
+                    {
+                        return stoi(fetch[SB.Pop_count.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Pop_count.instruction_num))
+                    {
+                        return stoi(store[SB.Pop_count.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Pop_count.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    if (SB.Increment.busy_tag) // Check Increment
+    {
+        if (destination[inst_num][1] == SB.Increment.D1[1]) // Do the #s match?
+        {
+            if (destination[inst_num][0] == 'A' || destination[inst_num][0] == 'X') // bc these come in pairs
+            {
+                // Pay attention to Fetch / Store operations as well
+                if (check_fetch_op(SB.Increment.instruction_num))
+                {
+                    return stoi(fetch[SB.Increment.instruction_num]);
+                }
+                else if (check_store_op(SB.Increment.instruction_num))
+                {
+                    return stoi(store[SB.Increment.instruction_num]);
+                }
+                else
+                {
+                    return result[SB.Increment.instruction_num];
+                }
+            }
+            else if (destination[inst_num][0] == 'B') // branch instructions modify these registers
+            {
+                if (destination[inst_num] == SB.Increment.D1)
+                {
+                    // Pay attention to Fetch / Store operations as well
+                    if (check_fetch_op(SB.Increment.instruction_num))
+                    {
+                        return stoi(fetch[SB.Increment.instruction_num]);
+                    }
+                    else if (check_store_op(SB.Increment.instruction_num))
+                    {
+                        return stoi(store[SB.Increment.instruction_num]);
+                    }
+                    else
+                    {
+                        return result[SB.Increment.instruction_num];
+                    }
+                }
+            }
+        }
+    }
+
+    // This function can only be entered if there is a conflict so... we should never have to return here
+    return 0;
+}
+
+// 2nd order conflict (Read after Write). This will affect the start entry
+int resolve_soc_conflict(int inst_num)
 {
     // Find where the conflict is
     // Look through scoreboard to find where the destinations collide (there should only be 1 place)
