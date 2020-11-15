@@ -33,6 +33,7 @@ void check_func_unit_complete(int inst_num, int curr_clock);
 void clear_func_unit(int inst_num);
 
 int resolve_foc_conflict(int inst_num);
+int resolve_foc2_conflict(int inst_num);
 
 
 // functional units
