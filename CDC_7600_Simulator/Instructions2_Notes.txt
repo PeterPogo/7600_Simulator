@@ -8,5 +8,5 @@ Y = AX^2 + BX (no vectors) (Test Data #1) (Powerpoint slide 149 module 2 modifie
 101000 011 011 000000000000000011  increment(50)   A3 = A3 + K3       Fetch B
 
 100000 011 011 001   			   FL_multiply(40) X3 = X3 * X1       Form BX             N3
-011000 101 110 011		     	   FL_add(30)      X5 = X6 + X3       Form Y
+011000 111 110 011		     	   FL_add(30)      X5 = X6 + X3       Form Y
 101000 111 111 101				   increment(50)   A7 = A7 + K5       Store Y

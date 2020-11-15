@@ -176,7 +176,7 @@ int main()
 
 
     // Read in semantics
-    ifstream sem_input_file("semantics3.txt");
+    ifstream sem_input_file("semantics2.txt");
     if (sem_input_file.is_open())
     {
         while (getline(sem_input_file, semantic))
@@ -193,7 +193,7 @@ int main()
     }
 
     // Read in binary
-    ifstream inst_input_file("instructions3.txt");
+    ifstream inst_input_file("instructions2.txt");
     if (inst_input_file.is_open())
     {
         while (getline(inst_input_file, instruction))
@@ -1868,73 +1868,73 @@ int resolve_foc_conflict(int inst_num)
 
     if ((temp_funcs_used[0] == SB.Boolean.busy_tag) && (SB.Boolean.busy_tag == true)) // Boolean
     {
-        if (worst_clock_scenario < unit_ready[SB.Boolean.instruction_num])
+        if (worst_clock_scenario < start[SB.Boolean.instruction_num] + SB.Boolean.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Boolean.instruction_num];
+            worst_clock_scenario = start[SB.Boolean.instruction_num] + SB.Boolean.segment_Time;
         }
     }
 
     if ((temp_funcs_used[1] == SB.Shift.busy_tag) && (SB.Shift.busy_tag == true)) // Shift
     {
-        if (worst_clock_scenario < unit_ready[SB.Shift.instruction_num])
+        if (worst_clock_scenario < start[SB.Shift.instruction_num] + SB.Shift.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Shift.instruction_num];
+            worst_clock_scenario = start[SB.Shift.instruction_num] + SB.Shift.segment_Time;
         }
     }
 
     if ((temp_funcs_used[2] == SB.Fixed_Add.busy_tag) && (SB.Fixed_Add.busy_tag == true)) // Fixed Add
     {
-        if (worst_clock_scenario < unit_ready[SB.Fixed_Add.instruction_num])
+        if (worst_clock_scenario < start[SB.Fixed_Add.instruction_num] + SB.Fixed_Add.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Fixed_Add.instruction_num];
+            worst_clock_scenario = start[SB.Fixed_Add.instruction_num] + SB.Fixed_Add.segment_Time;
         }
     }
 
     if ((temp_funcs_used[3] == SB.Floating_Add.busy_tag) && (SB.Floating_Add.busy_tag == true)) // Floating Add
     {
-        if (worst_clock_scenario < unit_ready[SB.Floating_Add.instruction_num])
+        if (worst_clock_scenario < start[SB.Floating_Add.instruction_num] + SB.Floating_Add.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Floating_Add.instruction_num];
+            worst_clock_scenario = start[SB.Floating_Add.instruction_num] + SB.Floating_Add.segment_Time;
         }
     }
 
     if ((temp_funcs_used[4] == SB.Floating_Multiply.busy_tag) && (SB.Floating_Multiply.busy_tag == true)) // Floating Multiply
     {
-        if (worst_clock_scenario < unit_ready[SB.Floating_Multiply.instruction_num])
+        if (worst_clock_scenario < start[SB.Floating_Multiply.instruction_num] + SB.Floating_Multiply.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Floating_Multiply.instruction_num];
+            worst_clock_scenario = start[SB.Floating_Multiply.instruction_num] + SB.Floating_Multiply.segment_Time;
         }
     }
 
     if ((temp_funcs_used[5] == SB.Floating_Divide.busy_tag) && (SB.Floating_Divide.busy_tag == true)) // Floating Divide
     {
-        if (worst_clock_scenario < unit_ready[SB.Floating_Divide.instruction_num])
+        if (worst_clock_scenario < start[SB.Floating_Divide.instruction_num] + SB.Floating_Divide.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Floating_Divide.instruction_num];
+            worst_clock_scenario = start[SB.Floating_Divide.instruction_num] + SB.Floating_Divide.segment_Time;
         }
     }
 
     if ((temp_funcs_used[6] == SB.Normalize.busy_tag) && (SB.Normalize.busy_tag == true)) // Normalize
     {
-        if (worst_clock_scenario < unit_ready[SB.Normalize.instruction_num])
+        if (worst_clock_scenario < start[SB.Normalize.instruction_num] + SB.Normalize.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Normalize.instruction_num];
+            worst_clock_scenario = start[SB.Normalize.instruction_num] + SB.Normalize.segment_Time;
         }
     }
 
     if ((temp_funcs_used[7] == SB.Pop_count.busy_tag) && (SB.Pop_count.busy_tag == true)) // Pop Count
     {
-        if (worst_clock_scenario < unit_ready[SB.Pop_count.instruction_num])
+        if (worst_clock_scenario < start[SB.Pop_count.instruction_num] + SB.Pop_count.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Pop_count.instruction_num];
+            worst_clock_scenario = start[SB.Pop_count.instruction_num] + SB.Pop_count.segment_Time;
         }
     }
 
     if ((temp_funcs_used[8] == SB.Increment.busy_tag) && (SB.Increment.busy_tag == true)) // Increment
     {
-        if (worst_clock_scenario < unit_ready[SB.Increment.instruction_num])
+        if (worst_clock_scenario < start[SB.Increment.instruction_num] + SB.Increment.segment_Time)
         {
-            worst_clock_scenario = unit_ready[SB.Increment.instruction_num];
+            worst_clock_scenario = start[SB.Increment.instruction_num] + SB.Increment.segment_Time;
         }
     }
 
