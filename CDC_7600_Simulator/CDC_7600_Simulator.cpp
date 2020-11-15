@@ -71,7 +71,7 @@ public:
        // S2 = "--";
        // D1 = "--";
 
-        instruction_num = -1;
+        //instruction_num = -1;
     }
 };
 
@@ -130,7 +130,7 @@ ostream& operator<<(ostream& os, const Scoreboard& sb)
 // Global declaration of table vectors
 #pragma region Table_Rows
 // These tables are purely for storing and outputing data, scoreboard needs to handle the logic
-vector<string> instruction_word;
+vector<int> instruction_word;
 vector<string> instruction_semantics;
 vector<string> instruction_semantics_2;
 vector<string> instruction_length;
@@ -154,14 +154,15 @@ vector<string> instructions;
 
 Scoreboard SB;
 
+int instruction_count = 0;
+
 int main()
 {
     // Test Data to run
-    // Y = AX2 + BX
-    // Y = AX2 + BX , X & Y are vectors (limited to 5 entries)
-    // Y = AX2 + BX + C
+    // Y = AX^2 + BX -- Works
+    // Y = AX^2 + BX , X & Y are vectors (limited to 5 entries) -- Untested
+    // Y = AX^2 + BX + C -- Works
 
-    int instruction_count = 0;
     string instruction;
     string semantic;
 
@@ -176,7 +177,7 @@ int main()
 
 
     // Read in semantics
-    ifstream sem_input_file("semantics2.txt");
+    ifstream sem_input_file("semantics1.txt");
     if (sem_input_file.is_open())
     {
         while (getline(sem_input_file, semantic))
@@ -193,7 +194,7 @@ int main()
     }
 
     // Read in binary
-    ifstream inst_input_file("instructions2.txt");
+    ifstream inst_input_file("instructions1.txt");
     if (inst_input_file.is_open())
     {
         while (getline(inst_input_file, instruction))
@@ -233,7 +234,8 @@ void create_blank_table(vector<string> instructions_v)
     //Fill word splits
     int current_word_length = 0;
     int current_word_count = 2;
-    instruction_word.push_back("N1"); // always gotta start at N1
+    int first_word_iterator = 1;
+    instruction_word.push_back(1); // always gotta start at N1
 
     for (string inst : instructions_v)
     {
@@ -241,12 +243,13 @@ void create_blank_table(vector<string> instructions_v)
 
         if (current_word_length >= 60)
         { 
-            instruction_word.push_back("N" + to_string(current_word_count));
+            instruction_word.push_back(current_word_count);
             current_word_count++;
             current_word_length = 0;
         }
-        else { instruction_word.push_back("  "); }
+        else { instruction_word.push_back(0); }
     }
+    instruction_word.pop_back(); // Remove last entry
 
     // Fill Semantics 1 & 2, increment unit, and registers used, (Big ole switchcase)
     for (string inst : instructions_v)
@@ -262,7 +265,65 @@ void create_blank_table(vector<string> instructions_v)
         else if ((opcode >= 40) && (opcode <= 42)) { MULTIPLY(opcode, inst); }
         else if ((opcode >= 44) && (opcode <= 47)) { DIVIDE(opcode, inst); }
         else if ((opcode >= 50) && (opcode <= 77)) { INCREMENT(opcode, inst); }
+
+        if (opcode == 5) // branch instruction
+        {
+            // Calculate how many words and which words to duplicate...
+            int word_num = (bitset<18>(inst.substr(12, 18)).to_ulong());
+            int word_difference = instruction_word[instruction_word.size()-1] - word_num;
+            int instruction_start = 0;;
+            int temp_word_size = instruction_word.size();
+
+            //count # instuctions between the branch the jump
+            //find where branch word starts in instruction_word vector
+            for (int k = 0; k < instruction_word.size() - 1; k++)
+            {
+                if (instruction_word[k] == word_num) { k = instruction_word.size(); }
+                else { instruction_start++; }
+            }
+
+            for (int n = 5; n > 0; n--) // 5 iterations for this simulation
+            {
+
+                for (int i = instruction_start; i < temp_word_size-1; i++) // 8 iterations
+                {
+                    instruction_word.push_back(instruction_word[i]);
+                    instruction_semantics.push_back(instruction_semantics[i]);
+                    instruction_semantics_2.push_back(instruction_semantics_2[i]);
+                    instruction_length.push_back(instruction_length[i]);
+                    functional_unit_used.push_back(functional_unit_used[i]);
+                    registers_used.push_back(registers_used[i]);
+                    
+                    // other structural info
+                    //indiv_functional_unit_used.push_back(indiv_functional_unit_used[i]);
+                    source_1.push_back(source_1[i]);
+                    source_2.push_back(source_2[i]);
+                    destination.push_back(destination[i]);
+
+                    instruction_count++;
+                }
+
+                instruction_word.push_back(instruction_word[temp_word_size-1]);
+                instruction_semantics.push_back(instruction_semantics[temp_word_size-1]);
+                instruction_semantics_2.push_back(instruction_semantics_2[temp_word_size-1]);
+                instruction_length.push_back(instruction_length[temp_word_size-1]);
+                functional_unit_used.push_back(functional_unit_used[temp_word_size-1]);
+                registers_used.push_back(registers_used[temp_word_size-1]);
+
+                // other structural info
+                //indiv_functional_unit_used.push_back(indiv_functional_unit_used[temp_word_size]);
+                source_1.push_back(source_1[temp_word_size-1]);
+                source_2.push_back(source_2[temp_word_size-1]);
+                destination.push_back(destination[temp_word_size-1]);
+
+                instruction_count++;
+            }
+        }
     }
+
+    // Need to handle replication of table given a branch condition, for this simulation n =5.
+
+
 
     // Testing values for printing
 #pragma region Fake Values
@@ -593,17 +654,17 @@ void simulate_CDC7600(int inst_count)
             // First problem is figuring out the issue entry: it can be affected by hardware conflict, must be iterated either +1 or +2 and changing words. Hardware conflict will have the largest affect
 
             // Default to the above logic for iterating each issue
-            if (instruction_word[curr_inst] == "  ")
+            if (instruction_word[curr_inst] == 0)
             {
                 if (instruction_length[curr_inst - 1] == "Long") { clock_pulses += 2; }
                 else { clock_pulses++; }
             }
-            else if (instruction_word[curr_inst] != "  ")
+            else if (instruction_word[curr_inst] != 0)
             {
-                if (instruction_word[curr_inst - 1] != "  ") { clock_pulses = issue[curr_inst - 1] + 6; }
-                else if(instruction_word[curr_inst - 2] != "  ") { clock_pulses = issue[curr_inst - 2] + 6; }
-                else if (instruction_word[curr_inst - 3] != "  ") { clock_pulses = issue[curr_inst - 3] + 6; }
-                else if (instruction_word[curr_inst - 4] != "  ") { clock_pulses = issue[curr_inst - 4] + 6; }
+                if (instruction_word[curr_inst - 1] != 0) { clock_pulses = issue[curr_inst - 1] + 6; }
+                else if(instruction_word[curr_inst - 2] != 0) { clock_pulses = issue[curr_inst - 2] + 6; }
+                else if (instruction_word[curr_inst - 3] != 0) { clock_pulses = issue[curr_inst - 3] + 6; }
+                else if (instruction_word[curr_inst - 4] != 0) { clock_pulses = issue[curr_inst - 4] + 6; }
             }
 
             indiv_functional_unit_used.push_back(get_indiv_fu(curr_inst)); // Get instruction functional unit(s)
@@ -645,8 +706,6 @@ void simulate_CDC7600(int inst_count)
             {
 
             }
-
-            //cout << "\n\nBEFORE RESERVE" << SB;
 
             reserve_units(curr_inst); // Only allowed to reserve units once foc is resolved or non-existent
 
@@ -2769,16 +2828,21 @@ int resolve_soc_conflict(int inst_num)
 }
 
 // Format and print the Table as rows are solved
-void output_table(vector<string> inst_word, vector<string> inst_sem, vector<string> inst_sem2, vector<string> inst_len, vector<int> issue, vector<int> start, vector<int> result, vector<int> unit_ready, vector<string> fetch, vector<string> store, vector<string> functional_unit_used, vector<string> registers_used, int rows_solved)
+void output_table(vector<int> inst_word, vector<string> inst_sem, vector<string> inst_sem2, vector<string> inst_len, vector<int> issue, vector<int> start, vector<int> result, vector<int> unit_ready, vector<string> fetch, vector<string> store, vector<string> functional_unit_used, vector<string> registers_used, int rows_solved)
 {
+    string word_string;
+    
     cout << "\n============================================================================================================================================================";
     cout << "\n| Word # |  Semantics   | Semantics cont.  | Inst. type | Issue | Start | Result | Unit ready | Fetch | Store |   Functional Unit(s)   |     Registers     |";
     cout << "\n------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
     for (int i = 0; i < rows_solved; i++)
     {
+        if (inst_word[i] == 0) { word_string = "  "; }
+        else { word_string = "N" + to_string(inst_word[i]); }
+
         cout << "\n" << left
-             << "    " << setw(5)  << inst_word[i] 
+             << "    " << setw(5)  << word_string
              << "  " << setw(10) << inst_sem[i] << "\t"
              << "   " << setw(15) << inst_sem2[i] << "\t"
              << setw(5) << inst_len[i] << "\t"
@@ -2791,7 +2855,7 @@ void output_table(vector<string> inst_word, vector<string> inst_sem, vector<stri
              << setw(26) << functional_unit_used[i]
              << "   "<< setw(8) << registers_used[i];
 
-        if (((i + 1) < rows_solved) && inst_word[i + 1] != "  ") { cout << "\n"; } // add newline between instruction words
+        if (((i + 1) < rows_solved) && inst_word[i + 1] != 0) { cout << "\n"; } // add newline between instruction words
     }
     cout << "\n============================================================================================================================================================";
 }
@@ -2822,17 +2886,26 @@ string get_unique_registers(string dest, string op1, string op2)
     {
         destination.push_back(dest);
     }
+    else
+    {
+        destination.push_back("--");
+    }
 
     if ((op1 != "") && (op1[0] != 'K') && op1[0] != 'B')
     {
         source_1.push_back(op1);
     }
+    else
+    {
+        source_1.push_back("--");
+    }
+
 
     if ((op2 != "") && (op2[0] != 'K') && op2[0] != 'B')
     {
         source_2.push_back(op2);
     }
-    else if (op2[0] == 'K')
+    else
     {
         source_2.push_back("--");
     }
@@ -2997,7 +3070,7 @@ void BRANCH(int Opcode, string inst)
             break;
         }
 
-        case 05: // GO TO K if Bi != Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
+        case 05: // GO TO NK if Bi != Bj, 8 clocks *add 6 if branch to instruction is out of the stack (no memory conflict considered)
         {
             operand1 = "B" + to_string(bitset<3>(inst.substr(6, 3)).to_ulong());
             operand2 = "B" + to_string(bitset<3>(inst.substr(9, 3)).to_ulong());
@@ -3078,7 +3151,7 @@ void BRANCH(int Opcode, string inst)
     }
 }
 
-#pragma endregion
+#pragma endregion // Normalize unit for 7600
 
 #pragma region Boolean Unit
 void BOOLEAN(int Opcode, string inst)
@@ -4508,18 +4581,8 @@ void NORMALIZE(int Opcode, string inst)
 
     switch (Opcode)
     {
-        case 40: // FLOATING PRODUCT of Xj and Xk to Xi, 10 clocks
-        {
 
-        }
-        case 41: // ROUND FLOATING PRODUCT of Xj and Xk to Xi, 10 clocks
-        {
 
-        }
-        case 42: // FLOATING DP PRODUCT of Xj and Xk to Xi, 10 clocks
-        {
-
-        }
     }
 }
 #pragma endregion Performs the same as Branch Unit in CDC6600 (for this project)
